@@ -1,23 +1,26 @@
-<!-- Tailwind (CDN, JIT in the browser) -->
-<script src="https://cdn.tailwindcss.com"></script>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Automated Beats</title>
 
-<!-- Optional: extend theme (colors, shadows) -->
-<script>
-  tailwind.config = {
-    theme: {
-      extend: {
-        fontFamily: {
-          display: ["ui-sans-serif", "system-ui", "Inter", "sans-serif"],
+    <!-- Tailwind (CDN, no build step) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: { display: ["ui-sans-serif","system-ui","Inter","sans-serif"] },
+            colors: { brick:"#a33a2c", mortar:"#e6d8cf", paper:"#fffdfa" },
+            boxShadow: { glow:"0 0 40px rgba(255,255,255,0.25)" },
+          },
         },
-        colors: {
-          brick: "#a33a2c",
-          mortar: "#e6d8cf",
-          paper: "#fffdfa",
-        },
-        boxShadow: {
-          glow: "0 0 40px rgba(255,255,255,0.25)",
-        },
-      },
-    },
-  }
-</script>
+      };
+    </script>
+  </head>
+  <body class="min-h-screen bg-neutral-950 text-white">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
