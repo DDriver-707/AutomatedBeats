@@ -1,0 +1,23 @@
+<!-- Tailwind (CDN, JIT in the browser) -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Optional: extend theme (colors, shadows) -->
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          display: ["ui-sans-serif", "system-ui", "Inter", "sans-serif"],
+        },
+        colors: {
+          brick: "#a33a2c",
+          mortar: "#e6d8cf",
+          paper: "#fffdfa",
+        },
+        boxShadow: {
+          glow: "0 0 40px rgba(255,255,255,0.25)",
+        },
+      },
+    },
+  }
+</script>
