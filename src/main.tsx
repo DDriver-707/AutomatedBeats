@@ -5,6 +5,7 @@ import App from "./App";
 import Home from "./routes/Home";
 import About from "./routes/About";
 import HowTo from "./routes/HowTo";
+import Create from "./routes/Create";
 import "./index.css";
 
 const router = createBrowserRouter([
@@ -15,6 +16,7 @@ const router = createBrowserRouter([
       { index: true, element: <Home /> },
       { path: "about", element: <About /> },
       { path: "how-to", element: <HowTo /> },
+      { path: "create", element: <Create /> },
     ],
   },
 ]);
