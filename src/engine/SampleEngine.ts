@@ -7,6 +7,7 @@ export interface AudioSample {
   hihat: string[];
   openHat: string[];
   bass: string[];
+  melody: string[];
 }
 
 export class SampleEngine {
@@ -151,6 +152,11 @@ export class SampleEngine {
     // Play bass - use first sample only
     if (pattern.bass[step] !== 0 && samples.bass.length > 0) {
       await this.playSample(samples.bass[0], 0.6, 'bass');
+    }
+
+    // Play melody - use first sample only
+    if (pattern.melody[step] !== 0 && samples.melody.length > 0) {
+      await this.playSample(samples.melody[0], 0.5, 'melody');
     }
   }
 

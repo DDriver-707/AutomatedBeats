@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Play, Pause, Square, Volume2, Shuffle, Music, Zap, RotateCcw } from 'lucide-react';
-import { SampleEngine } from '../engine/SampleEngine';
+import { Play, Pause, Square, Volume2, Shuffle, Music, Zap, RotateCcw, Download } from 'lucide-react';
+import { EnhancedSampleEngine } from '../engine/EnhancedSampleEngine';
 import { SAMPLE_CONFIGS } from '../engine/SampleConfigs';
 import { GENRE_CONFIGS, generateRandomBeat } from '../engine/GenreConfigs';
+import { ExportEngine } from '../engine/ExportEngine';
 import FLStudioPatternEditor from '../components/FLStudioPatternEditor';
 import AudioVisualizer from '../components/AudioVisualizer';
 
@@ -14,12 +15,15 @@ export default function Create() {
   const [currentStep, setCurrentStep] = useState(0);
   const [isRandomMode, setIsRandomMode] = useState(false);
   const [currentPattern, setCurrentPattern] = useState(GENRE_CONFIGS['hip-hop'].pattern);
+  const [isExporting, setIsExporting] = useState(false);
   
-  const sampleEngineRef = useRef<SampleEngine | null>(null);
+  const sampleEngineRef = useRef<EnhancedSampleEngine | null>(null);
+  const exportEngineRef = useRef<ExportEngine | null>(null);
   const animationRef = useRef<number | null>(null);
 
   useEffect(() => {
-    sampleEngineRef.current = new SampleEngine();
+    sampleEngineRef.current = new EnhancedSampleEngine();
+    exportEngineRef.current = new ExportEngine();
     
     return () => {
       if (sampleEngineRef.current) {
@@ -33,6 +37,7 @@ export default function Create() {
       sampleEngineRef.current.setVolume(volume);
     }
   }, [volume]);
+
 
   useEffect(() => {
     if (isPlaying) {
@@ -102,6 +107,39 @@ export default function Create() {
 
   const loadGenrePattern = (genre: string) => {
     setCurrentPattern(GENRE_CONFIGS[genre].pattern);
+  };
+
+  const handleExport = async () => {
+    if (!exportEngineRef.current) return;
+    
+    setIsExporting(true);
+    try {
+      const config = isRandomMode ? generateRandomBeat() : GENRE_CONFIGS[selectedGenre];
+      const samples = SAMPLE_CONFIGS[selectedGenre] || SAMPLE_CONFIGS['hip-hop'];
+      
+      const mp3Blob = await exportEngineRef.current.exportBeatToMP3(
+        config,
+        currentPattern,
+        samples,
+        60 // 60 seconds
+      );
+      
+      // Download the MP3
+      const url = URL.createObjectURL(mp3Blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `beat-${selectedGenre}-${Date.now()}.mp3`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+    } catch (error) {
+      console.error('Export failed:', error);
+      alert('Export failed. Please try again.');
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   const genres = Object.entries(GENRE_CONFIGS);
@@ -224,6 +262,21 @@ export default function Create() {
               >
                 <RotateCcw className="w-6 h-6" />
               </button>
+
+              <button
+                onClick={handleExport}
+                disabled={isExporting}
+                className={`
+                  w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300
+                  ${isExporting
+                    ? 'bg-yellow-500/50 cursor-not-allowed'
+                    : 'bg-blue-500 hover:bg-blue-600 shadow-lg shadow-blue-500/30'
+                  }
+                `}
+                title={isExporting ? "Exporting..." : "Export as MP3"}
+              >
+                <Download className={`w-6 h-6 ${isExporting ? 'animate-spin' : ''}`} />
+              </button>
             </div>
 
             {/* Audio Visualizer */}
@@ -248,6 +301,7 @@ export default function Create() {
               />
               <span className="text-sm text-white/70 w-8">{Math.round(volume * 100)}</span>
             </div>
+
 
             {/* Random Mode Indicator */}
             {isRandomMode && (
@@ -281,6 +335,7 @@ export default function Create() {
               onPatternChange={handlePatternChange}
             />
           </div>
+
 
           {/* Current Genre Info */}
           <div className="mt-4 p-3 bg-white/5 rounded-lg">

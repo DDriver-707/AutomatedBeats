@@ -5,6 +5,7 @@ export interface BeatPattern {
   hihat: number[];
   openHat: number[];
   bass: number[];
+  melody: number[];
 }
 
 export interface GenreConfig {

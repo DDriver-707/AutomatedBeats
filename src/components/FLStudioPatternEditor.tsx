@@ -138,6 +138,7 @@ export default function FLStudioPatternEditor({
           <div>• × = Clear pattern, + = Fill pattern</div>
           <div>• Purple highlight shows current playing step</div>
         </div>
+        
       </div>
     </div>
   );
