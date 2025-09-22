@@ -1,3 +1,15 @@
+/* @config "./tailwind.config.ts"; */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Make sure the app can cover the viewport */
+html, body, #root { height: 100%; }
+
+/* =========================
+   GLOBAL DECOR LIB (Home/About)
+   ========================= */
+
 /* Wood wall */
 .bg-wood {
   background:
@@ -12,33 +24,32 @@
   background-size: cover;
 }
 
-/* Brick wall */
-.bg-brick {
-  background:
-    linear-gradient(180deg, rgba(0,0,0,0.25), transparent 35%),
-    repeating-linear-gradient(
-      0deg, var(--mortar, #e6d8cf) 0 3px, transparent 3px 53px
-    ),
-    repeating-linear-gradient(
-      90deg, var(--mortar, #e6d8cf) 0 3px, transparent 3px 103px
-    ),
-    linear-gradient(0deg, var(--brick, #a33a2c), var(--brick, #a33a2c));
-  background-blend-mode: normal, multiply, multiply, normal;
-}
+/* --- Keep brick wall + spray-card in styles/graffiti.css to avoid duplicates --- */
+/* Removed:
+   - :root { --brick / --mortar }
+   - .bg-brick-y2k and ::after
+   - .spray-card and :hover
+   - y2kBlink keyframes + .y2k-eye
+   - Google Fonts @import
+*/
 
-/* Paper sheet */
+/* Subtle eye blink (only if you use SVG eyes outside of graffiti.css) */
+/* If you still need these across the app, keep them here; otherwise delete. */
+@keyframes y2kBlink { 0%, 96%, 100% { transform: scaleY(1); } 97% { transform: scaleY(.1); } }
+.y2k-eye { transform-origin: center; animation: y2kBlink 4.8s infinite ease-in-out; }
+
+/* Paper sheet (soft radial) */
 .paper {
   background: radial-gradient(circle at 20% 12%, #ffffff 0 35%, #fff9ec 60%, #fff3d6 100%);
 }
 
-/* Burnt corner overlay */
+/* Burnt corner overlay used in other pages */
 .burn-corner {
   position: absolute;
   top: -12px; right: -12px;
   width: 160px; height: 160px;
   pointer-events: none;
-  background:
-    radial-gradient(circle at 70% 30%, rgba(255,150,0,0.2), rgba(0,0,0,0.45) 55%, transparent 58%);
+  background: radial-gradient(circle at 70% 30%, rgba(255,150,0,0.2), rgba(0,0,0,0.45) 55%, transparent 58%);
   filter: blur(1px) drop-shadow(0 0 8px rgba(255,120,0,0.35));
   transform: rotate(8deg);
 }
@@ -79,4 +90,109 @@
   margin: 8px 10px 0;
   background: repeating-linear-gradient(90deg, #fff 0 18px, #000 18px 20px);
   border-radius: 2px;
+}
+
+/* =========================
+   HOW-TO: Full-page lined paper
+   ========================= */
+.route-howto-paper { background: transparent; }
+.howto-paper-bg{
+  background:
+    /* red margin */
+    linear-gradient(to right, rgba(239,68,68,.26) 64px, transparent 65px) 0 0 / 100% 100%,
+    /* blue rules */
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0 26px,
+      rgba(59,130,246,.14) 26px 27px,
+      transparent 27px 28px
+    ),
+    #fbfbf8;
+  filter: url(#paperNoise);
+}
+@media (prefers-color-scheme: dark){
+  .route-howto-paper .howto-paper-bg{
+    background:
+      linear-gradient(to right, rgba(239,68,68,.18) 64px, transparent 65px) 0 0 / 100% 100%,
+      repeating-linear-gradient(to bottom, transparent 0 26px, rgba(148,163,184,.2) 26px 27px, transparent 27px 28px),
+      #f9fafb;
+  }
+}
+
+/* Burning corner set */
+.burn-wrap-ht{
+  -webkit-mask: radial-gradient(180px at 100% 0, transparent 62%, #000 63%);
+          mask: radial-gradient(180px at 100% 0, transparent 62%, #000 63%);
+}
+.ember-glow-ht{
+  background: conic-gradient(
+    from 180deg at 100% 0%,
+    rgba(255,120,40,0) 0deg,
+    rgba(255,120,40,.45) 20deg,
+    rgba(255,200,80,.75) 35deg,
+    rgba(255,50,10,.6) 55deg,
+    rgba(255,120,40,0) 120deg
+  );
+  filter: blur(18px);
+  mix-blend-mode: plus-lighter;
+  animation: emberPulseHt 2.25s ease-in-out infinite alternate;
+}
+@keyframes emberPulseHt{
+  0%{ opacity:.35; transform: translateY(0) scale(.96); }
+  100%{ opacity:.9;  transform: translateY(-2px) scale(1.03); }
+}
+.char-ring-ht{
+  border-radius: 9999px;
+  background:
+    radial-gradient(closest-side, rgba(0,0,0,.8), rgba(0,0,0,.4) 60%, transparent 70%);
+  filter: blur(3px) contrast(1.1);
+  opacity:.6;
+}
+.flame-stack-ht .tongue{
+  position: absolute;
+  display: block;
+  border-radius: 0 0 999px 999px;
+  transform-origin: 100% 0%;
+  opacity:.8;
+  filter:
+    drop-shadow(0 0 8px rgba(255,150,60,.65))
+    drop-shadow(0 0 18px rgba(255,200,120,.45));
+}
+.flame-stack-ht .t1{
+  right: 8px; top: 0;
+  width: 14px; height: 80px;
+  background: linear-gradient(180deg, #ffd166, #ff7a3d 60%, #e11d48 100%);
+  animation: flameFlickerHt 1.2s ease-in-out infinite;
+}
+.flame-stack-ht .t2{
+  right: 22px; top: 6px;
+  width: 10px; height: 64px;
+  background: linear-gradient(180deg, #ffe08a, #ff944d 55%, #f43f5e 100%);
+  animation: flameFlickerHt 1s ease-in-out infinite .1s;
+}
+.flame-stack-ht .t3{
+  right: 36px; top: 8px;
+  width: 8px; height: 56px;
+  background: linear-gradient(180deg, #fff0a8, #ffb36b 50%, #fb7185 100%);
+  animation: flameFlickerHt 1.35s ease-in-out infinite .05s;
+}
+.flame-stack-ht .t4{
+  right: 16px; top: 14px;
+  width: 6px; height: 44px;
+  background: linear-gradient(180deg, #fff2b5, #ffca85 50%, #fda4af 100%);
+  animation: flameFlickerHt 1.15s ease-in-out infinite .18s;
+}
+.smoke-ht{
+  background:
+    radial-gradient(60% 40% at 50% 60%, rgba(80,80,80,.22), transparent 70%),
+    radial-gradient(40% 30% at 60% 20%, rgba(120,120,120,.18), transparent 70%),
+    radial-gradient(50% 35% at 40% 30%, rgba(90,90,90,.15), transparent 70%);
+  filter: blur(16px);
+  mix-blend-mode: multiply;
+}
+.smoke-ht.s1{ animation: smokeDriftHt 6s ease-in-out infinite; }
+.smoke-ht.s2{ animation: smokeDriftHt 7.2s ease-in-out infinite .4s; }
+@keyframes smokeDriftHt{
+  0%   { opacity:.26; transform: translateY(0) translateX(0) scale(1); }
+  50%  { opacity:.5;  transform: translateY(-14px) translateX(-6px); }
 }

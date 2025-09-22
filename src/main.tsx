@@ -6,7 +6,10 @@ import Home from "./routes/Home";
 import About from "./routes/About";
 import HowTo from "./routes/HowTo";
 import Create from "./routes/Create";
+
+// global styles
 import "./index.css";
+import "./styles/graffiti.css";
 
 const router = createBrowserRouter([
   {
