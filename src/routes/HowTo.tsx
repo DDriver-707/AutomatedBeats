@@ -1,96 +1,224 @@
-import React from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import "./howto.css";
+import {
+  Music2,
+  Compass,
+  FilePlus2,
+  SlidersHorizontal,
+  Share2,
+  Wrench,
+  LifeBuoy,
+  Sparkles,
+} from "lucide-react";
 
-const HowTo: React.FC = () => {
-  const instructions = [
-    { symbol: "♪", title: "Getting Started", content: "Click anywhere to begin exploring the website. Everything is designed to be intuitive and easy to use." },
-    { symbol: "♫", title: "Navigation", content: "Use the menu buttons to move between different sections. Each page loads quickly and smoothly." },
-    { symbol: "♬", title: "Creating Content", content: "Hit the 'New' button to start creating. The software guides you through each step of the process." },
-    { symbol: "♭", title: "Customization", content: "Adjust your preferences in the Settings menu. Choose themes and layouts that work best for you." },
-    { symbol: "♯", title: "Sharing", content: "Share your work with others using the 'Send' or 'Export' options. Multiple formats are supported." },
-    { symbol: "𝄞", title: "Advanced Tools", content: "Access additional features through the Tools menu. These include filters, templates, and automation options." },
-    { symbol: "♩", title: "Help & Support", content: "If you need assistance, check the Help section or use the contact form to reach our support team." },
-    { symbol: "♪", title: "Tips & Tricks", content: "Use keyboard shortcuts for faster workflow. Hold Ctrl while clicking to open items in new windows." },
-  ];
+type Row = { icon: React.ReactNode; title: string; content: string };
 
-  return (
-    <main className="route-howto-paper relative min-h-screen w-full overflow-hidden">
-      {/* full-page lined-paper background (route-scoped styles handle this) */}
-      <div className="howto-paper-bg fixed inset-0 -z-10 pointer-events-none" />
+const rows: Row[] = [
+  { icon: <Music2 className="size-4" />, title: "Getting Started", content: "Click anywhere to begin exploring the site. Everything is designed to be intuitive and easy to use." },
+  { icon: <Compass className="size-4" />, title: "Navigation", content: "Use the menu to move between sections. Pages load quickly and transitions are smooth." },
+  { icon: <FilePlus2 className="size-4" />, title: "Creating Content", content: "Hit the ‘New’ button to start. The software guides you through each step of the process." },
+  { icon: <SlidersHorizontal className="size-4" />, title: "Customization", content: "Open Settings to pick themes and layouts that fit your workflow." },
+  { icon: <Share2 className="size-4" />, title: "Sharing", content: "Use ‘Send’ to share or export to multiple formats when you’re ready." },
+  { icon: <Wrench className="size-4" />, title: "Advanced Tools", content: "Filters, templates, and automation live in the Tools menu." },
+  { icon: <LifeBuoy className="size-4" />, title: "Help & Support", content: "Check Help or use the contact form if you get stuck." },
+  { icon: <Sparkles className="size-4" />, title: "Tips & Tricks", content: "Keyboard shortcuts = speed. Hold ⌘/Ctrl while clicking to open items in a new tab." },
+];
 
-      {/* BURNED TOP-RIGHT CORNER */}
-      <div className="burn-wrap-ht fixed top-0 right-0 w-[240px] h-[240px] pointer-events-none">
-        {/* edge cutout (mask) is applied on the wrapper via CSS */}
-        <div className="ember-glow-ht absolute bottom-6 left-6 w-44 h-44" />
-        <div className="char-ring-ht absolute bottom-7 left-7 w-40 h-40" />
-        {/* “flame tongues” */}
-        <div className="flame-stack-ht absolute top-0 right-0 w-full h-full">
-          <i className="tongue t1" />
-          <i className="tongue t2" />
-          <i className="tongue t3" />
-          <i className="tongue t4" />
-        </div>
-        {/* drifting smoke plumes */}
-        <div className="smoke-ht s1 absolute -top-6 right-10 w-24 h-28" />
-        <div className="smoke-ht s2 absolute -top-2 right-4 w-28 h-32" />
-      </div>
-
-      {/* PAGE CONTENT */}
-      <div className="min-h-screen w-full text-black py-12 px-6 sm:px-10 md:px-12 relative">
-        {/* three-hole punches */}
-        <div className="absolute left-5 top-20 w-4 h-4 bg-gray-100 rounded-full border border-gray-300 shadow-inner" />
-        <div className="absolute left-5 top-1/2 -mt-2 w-4 h-4 bg-gray-100 rounded-full border border-gray-300 shadow-inner" />
-        <div className="absolute left-5 bottom-20 w-4 h-4 bg-gray-100 rounded-full border border-gray-300 shadow-inner" />
-
-        {/* NOTE: the paper ruling + red margin is provided by the container below via inline bg-image (so it prints nice) */}
-        <div
-          className="relative mx-auto max-w-4xl rounded-2xl shadow-2xl border border-neutral-300/70 bg-white/90 backdrop-blur-[1px] pt-8 pb-12 px-6 sm:px-10"
-          style={{
-            backgroundImage: `
-              repeating-linear-gradient(
-                transparent, transparent 31px, rgba(209,213,219,.9) 31px, rgba(209,213,219,.9) 33px
-              ),
-              linear-gradient(
-                90deg, transparent 0, transparent 40px, #ef4444 40px, #ef4444 42px, transparent 42px
-              )
-            `,
-            backgroundSize: "100% 33px, 100% 100%",
-          }}
-        >
-          {/* page header */}
-          <div className="text-right text-blue-700 font-semibold mb-8 text-sm">
-            How-To Guide
-          </div>
-          <h1 className="text-4xl font-extrabold text-center mb-10 text-gray-800 tracking-tight">
-            Website & Software Instructions
-          </h1>
-
-          {/* instructions list */}
-          <div className="space-y-8">
-            {instructions.map((instruction, i) => (
-              <div key={i} className="flex items-start gap-4">
-                <div className="text-2xl text-blue-600 font-bold pt-1 select-none leading-none">
-                  {instruction.symbol}
-                </div>
-                <div className="flex-1">
-                  <h2 className="text-xl font-semibold text-gray-800 mb-1">
-                    {instruction.title}
-                  </h2>
-                  <p className="text-gray-700 leading-relaxed text-base">
-                    {instruction.content}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* small bottom note */}
-          <div className="mt-10 text-center text-xs text-gray-500">
-            Tip: Press <span className="px-1 py-0.5 rounded border border-gray-300 bg-white">Ctrl</span> while clicking to open items in a new window.
-          </div>
-        </div>
-      </div>
-    </main>
-  );
+/* ---------- Random doodles ---------- */
+type Doodle = {
+  id: number;
+  top: number;
+  left: number;
+  rotate: number;
+  scale: number;
+  color: string;
+  op: number;
+  kind: "star" | "note" | "spiral" | "squiggle" | "ring";
 };
 
-export default HowTo;
+const COLOR_PALETTE = [
+  "#60a5fa", "#a78bfa", "#22d3ee", "#34d399", "#fbbf24", "#fb7185", "#f472b6",
+];
+
+const rand = (min: number, max: number) => Math.random() * (max - min) + min;
+
+export default function HowTo() {
+  const rootRef = useRef<HTMLDivElement>(null);
+  const [height, setHeight] = useState<number>(2000);
+  const [width, setWidth] = useState<number>(
+    typeof window !== "undefined" ? window.innerWidth : 1200
+  );
+
+  // Measure page size so doodles + holes scale with content
+  useEffect(() => {
+    const measure = () => {
+      setWidth(window.innerWidth);
+      const h =
+        rootRef.current?.scrollHeight ??
+        document.documentElement.scrollHeight ??
+        document.body.scrollHeight ??
+        window.innerHeight;
+      setHeight(h);
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    if (rootRef.current) ro.observe(rootRef.current);
+    window.addEventListener("resize", measure);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, []);
+
+  // Distribute holes from near top to near bottom with even spacing
+  const holes = useMemo(() => {
+    const first = 150;        // first hole down from the top
+    const last = Math.max(first + 300, height - 140); // keep a little bottom margin
+    const minSpacing = 190;   // make gaps bigger than before
+    const available = last - first;
+    const count = Math.max(3, Math.ceil(available / minSpacing) + 1); // +1 so last sits near bottom
+    const out: number[] = [];
+    for (let i = 0; i < count; i++) {
+      const y = first + (available * i) / (count - 1);
+      out.push(y);
+    }
+    return out;
+  }, [height]);
+
+  // Colorful doodles behind text
+  const doodles: Doodle[] = useMemo(() => {
+    const count = Math.min(110, Math.max(54, Math.round(height / 36)));
+    const arr: Doodle[] = [];
+    for (let i = 0; i < count; i++) {
+      arr.push({
+        id: i,
+        top: rand(100, Math.max(700, height - 150)),
+        left: rand(120, Math.max(160, width - 160)),
+        rotate: rand(-18, 18),
+        scale: rand(0.85, 1.45),
+        color: COLOR_PALETTE[Math.floor(rand(0, COLOR_PALETTE.length))],
+        op: rand(0.28, 0.5),
+        kind: (["star", "note", "spiral", "squiggle", "ring"] as const)[
+          Math.floor(rand(0, 5))
+        ],
+      });
+    }
+    return arr;
+  }, [height, width]);
+
+  return (
+    <main className="howto" ref={rootRef}>
+      {/* paper + effects */}
+      <div className="howto__bg" aria-hidden />
+      <div className="howto__shadow" aria-hidden />
+      {/* horizontal gradient band closer to the bottom */}
+      <div className="howto__band" aria-hidden />
+      <div className="howto__torn" aria-hidden />
+
+      {/* red margin & holes (full-height coverage) */}
+      <div className="howto__margin howto__abs" aria-hidden />
+      {holes.map((t, i) => (
+        <div key={i} className="howto__hole howto__abs" style={{ top: t }} aria-hidden />
+      ))}
+
+      {/* colorful doodles (BEHIND writing) */}
+      <div className="howto__doodleLayer" aria-hidden>
+        {doodles.map((d) => (
+          <DoodleSVG key={d.id} {...d} />
+        ))}
+      </div>
+
+      {/* sticky colored tabs on the right edge */}
+      <aside className="howto__tabs" aria-hidden>
+        <i className="tab t1" />
+        <i className="tab t2" />
+        <i className="tab t3" />
+      </aside>
+
+      {/* content */}
+      <section className="howto__content">
+        <div className="howto__meta">
+          <span className="badge">How-To Guide</span>
+          <span className="updated">Last updated <time>today</time></span>
+        </div>
+
+        <h1 className="howto__title">Website &amp; Software Instructions</h1>
+        <p className="howto__note">(notes scribbled by a very serious musician 📝)</p>
+        <div className="howto__rule" />
+
+        <ul className="howto__list">
+          {rows.map((row, i) => (
+            <li key={i} className="row">
+              <span className="row__icon">{row.icon}</span>
+              <div className="row__text">
+                <h2 className="row__title">{row.title}</h2>
+                <p className="row__body">{row.content}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+
+        <p className="howto__tip">
+          Pro tip: press <kbd className="kbd">⌘/Ctrl</kbd> while clicking to open items in a new tab.
+        </p>
+      </section>
+
+      {/* defs */}
+      <svg width="0" height="0" className="howto__svg">
+        <filter id="paperNoise" x="0" y="0" width="100%" height="100%">
+          <feTurbulence baseFrequency="0.7" numOctaves="2" type="fractalNoise" stitchTiles="stitch" />
+          <feColorMatrix type="saturate" values="0" />
+          <feComponentTransfer><feFuncA type="table" tableValues="0 0.03" /></feComponentTransfer>
+        </filter>
+      </svg>
+    </main>
+  );
+}
+
+function DoodleSVG(d: Doodle) {
+  const common = {
+    style: {
+      top: d.top,
+      left: d.left,
+      transform: `rotate(${d.rotate}deg) scale(${d.scale})`,
+      color: d.color,
+      opacity: d.op,
+    } as React.CSSProperties,
+    className: "howto__doodle",
+  };
+
+  switch (d.kind) {
+    case "star":
+      return (
+        <svg {...common} viewBox="0 0 120 120">
+          <path d="M60 10 L68 42 L102 42 L74 60 L84 92 L60 74 L36 92 L46 60 L18 42 L52 42 Z" />
+        </svg>
+      );
+    case "note":
+      return (
+        <svg {...common} viewBox="0 0 80 120">
+          <path d="M18 86 q8-6 14 0 v-42 h10 v-8 h10 v54 q-6-6-14 0" fill="none" />
+          <circle cx="18" cy="90" r="6" /><circle cx="52" cy="90" r="6" />
+        </svg>
+      );
+    case "spiral":
+      return (
+        <svg {...common} viewBox="0 0 100 100">
+          <path d="M50 50 m-24 0 a24 24 0 1 1 48 0 a18 18 0 1 1 -36 0 a12 12 0 1 1 24 0 a6 6 0 1 1 -12 0" fill="none" />
+        </svg>
+      );
+    case "ring":
+      return (
+        <svg {...common} viewBox="0 0 140 140">
+          <circle cx="70" cy="70" r="44" fill="none" />
+          <circle cx="70" cy="70" r="50" fill="none" opacity=".65" />
+        </svg>
+      );
+    default: // squiggle
+      return (
+        <svg {...common} viewBox="0 0 200 60">
+          <path d="M4 32 C 34 10, 66 10, 96 32 S 158 54, 196 30" fill="none" />
+        </svg>
+      );
+  }
+}

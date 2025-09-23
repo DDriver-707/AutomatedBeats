@@ -24,19 +24,83 @@ html, body, #root { height: 100%; }
   background-size: cover;
 }
 
-/* --- Keep brick wall + spray-card in styles/graffiti.css to avoid duplicates --- */
-/* Removed:
-   - :root { --brick / --mortar }
-   - .bg-brick-y2k and ::after
-   - .spray-card and :hover
-   - y2kBlink keyframes + .y2k-eye
-   - Google Fonts @import
-*/
 
-/* Subtle eye blink (only if you use SVG eyes outside of graffiti.css) */
-/* If you still need these across the app, keep them here; otherwise delete. */
+:root {
+  --brick: #a33a2c;    /* base brick tone */
+  --mortar: #e6d8cf;   /* grout */
+}
+
+/* Enhanced Y2K brick wall (staggered bricks + noise + vignettes) */
+.bg-brick-y2k {
+  position: relative;
+  background-color: var(--brick);
+  background-image:
+    /* Top sheen */
+    linear-gradient(180deg, rgba(255,255,255,0.12), transparent 28%),
+    /* Soft spotlight */
+    radial-gradient(1200px 200px at 50% 0%, rgba(255,255,255,0.10), transparent 60%),
+    /* Horizontal mortar */
+    repeating-linear-gradient(0deg, var(--mortar) 0 3px, transparent 3px 57px),
+    /* Vertical mortar grid A */
+    repeating-linear-gradient(90deg, var(--mortar) 0 3px, transparent 3px 206px),
+    /* Vertical mortar grid B (offset to stagger) */
+    repeating-linear-gradient(90deg, var(--mortar) 0 3px, transparent 3px 206px);
+  background-size:
+    cover,
+    cover,
+    cover,
+    206px 114px,
+    206px 114px;
+  background-position:
+    center,
+    center,
+    center,
+    0 0,
+    103px 57px;
+  background-blend-mode:
+    overlay,
+    normal,
+    multiply,
+    multiply,
+    multiply;
+}
+
+/* Fine noise layer */
+.bg-brick-y2k::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: 
+    radial-gradient(1px 1px at 20% 30%, rgba(0,0,0,0.12) 50%, transparent 51%),
+    radial-gradient(1px 1px at 70% 60%, rgba(0,0,0,0.10) 50%, transparent 51%),
+    radial-gradient(1px 1px at 40% 80%, rgba(255,255,255,0.08) 50%, transparent 51%);
+  background-size: 3px 3px, 4px 4px, 5px 5px;
+  mix-blend-mode: overlay;
+  opacity: 0.4;
+}
+
+/* Spray-card utility for social links */
+.spray-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  border-radius: 0.9rem;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.06));
+  backdrop-filter: blur(6px);
+  color: white;
+  text-decoration: none;
+  transition: transform .15s ease, background .2s ease;
+  box-shadow: 0 12px 22px rgba(0,0,0,0.35);
+}
+.spray-card:hover { transform: translateY(-2px) rotate(-0.5deg); background: rgba(255,255,255,0.22); }
+
+/* Subtle eye blink for Y2KCharacter */
 @keyframes y2kBlink { 0%, 96%, 100% { transform: scaleY(1); } 97% { transform: scaleY(.1); } }
 .y2k-eye { transform-origin: center; animation: y2kBlink 4.8s infinite ease-in-out; }
+
 
 /* Paper sheet (soft radial) */
 .paper {
@@ -92,107 +156,3 @@ html, body, #root { height: 100%; }
   border-radius: 2px;
 }
 
-/* =========================
-   HOW-TO: Full-page lined paper
-   ========================= */
-.route-howto-paper { background: transparent; }
-.howto-paper-bg{
-  background:
-    /* red margin */
-    linear-gradient(to right, rgba(239,68,68,.26) 64px, transparent 65px) 0 0 / 100% 100%,
-    /* blue rules */
-    repeating-linear-gradient(
-      to bottom,
-      transparent 0 26px,
-      rgba(59,130,246,.14) 26px 27px,
-      transparent 27px 28px
-    ),
-    #fbfbf8;
-  filter: url(#paperNoise);
-}
-@media (prefers-color-scheme: dark){
-  .route-howto-paper .howto-paper-bg{
-    background:
-      linear-gradient(to right, rgba(239,68,68,.18) 64px, transparent 65px) 0 0 / 100% 100%,
-      repeating-linear-gradient(to bottom, transparent 0 26px, rgba(148,163,184,.2) 26px 27px, transparent 27px 28px),
-      #f9fafb;
-  }
-}
-
-/* Burning corner set */
-.burn-wrap-ht{
-  -webkit-mask: radial-gradient(180px at 100% 0, transparent 62%, #000 63%);
-          mask: radial-gradient(180px at 100% 0, transparent 62%, #000 63%);
-}
-.ember-glow-ht{
-  background: conic-gradient(
-    from 180deg at 100% 0%,
-    rgba(255,120,40,0) 0deg,
-    rgba(255,120,40,.45) 20deg,
-    rgba(255,200,80,.75) 35deg,
-    rgba(255,50,10,.6) 55deg,
-    rgba(255,120,40,0) 120deg
-  );
-  filter: blur(18px);
-  mix-blend-mode: plus-lighter;
-  animation: emberPulseHt 2.25s ease-in-out infinite alternate;
-}
-@keyframes emberPulseHt{
-  0%{ opacity:.35; transform: translateY(0) scale(.96); }
-  100%{ opacity:.9;  transform: translateY(-2px) scale(1.03); }
-}
-.char-ring-ht{
-  border-radius: 9999px;
-  background:
-    radial-gradient(closest-side, rgba(0,0,0,.8), rgba(0,0,0,.4) 60%, transparent 70%);
-  filter: blur(3px) contrast(1.1);
-  opacity:.6;
-}
-.flame-stack-ht .tongue{
-  position: absolute;
-  display: block;
-  border-radius: 0 0 999px 999px;
-  transform-origin: 100% 0%;
-  opacity:.8;
-  filter:
-    drop-shadow(0 0 8px rgba(255,150,60,.65))
-    drop-shadow(0 0 18px rgba(255,200,120,.45));
-}
-.flame-stack-ht .t1{
-  right: 8px; top: 0;
-  width: 14px; height: 80px;
-  background: linear-gradient(180deg, #ffd166, #ff7a3d 60%, #e11d48 100%);
-  animation: flameFlickerHt 1.2s ease-in-out infinite;
-}
-.flame-stack-ht .t2{
-  right: 22px; top: 6px;
-  width: 10px; height: 64px;
-  background: linear-gradient(180deg, #ffe08a, #ff944d 55%, #f43f5e 100%);
-  animation: flameFlickerHt 1s ease-in-out infinite .1s;
-}
-.flame-stack-ht .t3{
-  right: 36px; top: 8px;
-  width: 8px; height: 56px;
-  background: linear-gradient(180deg, #fff0a8, #ffb36b 50%, #fb7185 100%);
-  animation: flameFlickerHt 1.35s ease-in-out infinite .05s;
-}
-.flame-stack-ht .t4{
-  right: 16px; top: 14px;
-  width: 6px; height: 44px;
-  background: linear-gradient(180deg, #fff2b5, #ffca85 50%, #fda4af 100%);
-  animation: flameFlickerHt 1.15s ease-in-out infinite .18s;
-}
-.smoke-ht{
-  background:
-    radial-gradient(60% 40% at 50% 60%, rgba(80,80,80,.22), transparent 70%),
-    radial-gradient(40% 30% at 60% 20%, rgba(120,120,120,.18), transparent 70%),
-    radial-gradient(50% 35% at 40% 30%, rgba(90,90,90,.15), transparent 70%);
-  filter: blur(16px);
-  mix-blend-mode: multiply;
-}
-.smoke-ht.s1{ animation: smokeDriftHt 6s ease-in-out infinite; }
-.smoke-ht.s2{ animation: smokeDriftHt 7.2s ease-in-out infinite .4s; }
-@keyframes smokeDriftHt{
-  0%   { opacity:.26; transform: translateY(0) translateX(0) scale(1); }
-  50%  { opacity:.5;  transform: translateY(-14px) translateX(-6px); }
-}
