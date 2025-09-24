@@ -5,6 +5,7 @@ import { patterns, melodyPatterns, genreBPMs } from './patterns';
 const createPattern = (
   kick: number[] = [],
   snare: number[] = [],
+  clap: number[] = [],
   hihat: number[] = [],
   openHat: number[] = [],
   bass: number[] = [],
@@ -13,6 +14,7 @@ const createPattern = (
   const pattern: BeatPattern = {
     kick: new Array(16).fill(0),
     snare: new Array(16).fill(0),
+    clap: new Array(16).fill(0),
     hihat: new Array(16).fill(0),
     openHat: new Array(16).fill(0),
     bass: new Array(16).fill(0),
@@ -27,6 +29,11 @@ const createPattern = (
   // Apply snare pattern
   snare.forEach((value, index) => {
     if (index < 16) pattern.snare[index] = value;
+  });
+
+  // Apply clap pattern
+  clap.forEach((value, index) => {
+    if (index < 16) pattern.clap[index] = value;
   });
 
   // Apply hihat pattern
@@ -59,6 +66,7 @@ export const GENRE_CONFIGS: Record<string, GenreConfig> = {
     pattern: createPattern(
       patterns.hiphopPattern.kick,
       patterns.hiphopPattern.snare,
+      patterns.hiphopPattern.clap,
       patterns.hiphopPattern.hihat,
       patterns.hiphopPattern.openhihat,
       patterns.hiphopPattern.bass,
@@ -79,6 +87,7 @@ export const GENRE_CONFIGS: Record<string, GenreConfig> = {
     pattern: createPattern(
       patterns.emorapPattern.kick,
       patterns.emorapPattern.snare,
+      patterns.emorapPattern.clap,
       patterns.emorapPattern.hihat,
       patterns.emorapPattern.openhihat,
       patterns.emorapPattern.bass,
@@ -99,6 +108,7 @@ export const GENRE_CONFIGS: Record<string, GenreConfig> = {
     pattern: createPattern(
       patterns.countryPattern.kick,
       patterns.countryPattern.snare,
+      patterns.countryPattern.clap,
       patterns.countryPattern.hihat,
       patterns.countryPattern.openhihat,
       patterns.countryPattern.bass,
@@ -119,6 +129,7 @@ export const GENRE_CONFIGS: Record<string, GenreConfig> = {
     pattern: createPattern(
       patterns.edmPattern.kick,
       patterns.edmPattern.snare,
+      patterns.edmPattern.clap,
       patterns.edmPattern.hihat,
       patterns.edmPattern.openhihat,
       patterns.edmPattern.bass,
@@ -139,6 +150,7 @@ export const GENRE_CONFIGS: Record<string, GenreConfig> = {
     pattern: createPattern(
       patterns.rockPattern.kick,
       patterns.rockPattern.snare,
+      patterns.rockPattern.clap,
       patterns.rockPattern.hihat,
       patterns.rockPattern.openhihat,
       patterns.rockPattern.bass,
@@ -159,6 +171,7 @@ export const GENRE_CONFIGS: Record<string, GenreConfig> = {
     pattern: createPattern(
       patterns.trapPattern.kick,
       patterns.trapPattern.snare,
+      patterns.trapPattern.clap,
       patterns.trapPattern.hihat,
       patterns.trapPattern.openhihat,
       patterns.trapPattern.bass,

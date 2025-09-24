@@ -1,51 +1,57 @@
 // Standard drum patterns for each genre
 export const patterns = {
   hiphopPattern: {
-    kick:      [1,0,0,0, 0,0,0,0, 0,0,1,0, 0,0,0,0], // Kick on 1 and 11 (and of 3)
-    snare:     [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0], // Snare on 2 and 4 (5 and 13)
-    hihat:     [1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0], // Steady 8th notes
-    openhihat: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0], // Minimal open hat
-    bass:      [1,0,0,0, 0,0,0,0, 0,0,1,0, 0,0,0,0]  // Bass follows kick
+    kick:      [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0], // No kick
+    snare:     [0,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,0,0], // Snare on 5 and 13 (switched from clap)
+    clap:      [0,0,0,1, 0,0,0,0, 0,0,0,1, 0,0,0,0], // Clap on 4 and 12 (switched from snare)
+    hihat:     [1,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,1], // Steady 16th notes
+    openhihat: [0,0,0,1, 0,0,0,0, 0,0,0,1, 0,0,0,0], // Open hat on 3 and 11
+    bass:      [0,0,0,0, 0,1,0,0, 0,0,0,0, 0,0,0,1]  // Bass on 1 and 9
   },
 
   emorapPattern: {
-    kick:      [1,0,0,0, 0,0,1,0, 0,0,0,0, 1,0,0,0],
-    snare:     [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
+    kick:      [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0], // No kick
+    snare:     [0,0,0,0, 0,0,0,1, 0,1,0,0, 0,0,0,0], // Snare on 9 (switched from clap)
+    clap:      [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0], // Clap on 5 and 13 (switched from snare)
     hihat:     [1,0,0,1, 0,1,0,0, 1,0,0,1, 0,1,0,0],
     openhihat: [0,0,0,0, 0,0,0,0, 0,1,0,0, 0,0,0,0],
-    bass:      [1,0,0,0, 0,0,0,0, 0,0,1,0, 0,0,0,0]
+    bass:      [1,0,0,0, 0,0,1,0, 0,0,1,0, 0,0,0,0]
   },
 
   countryPattern: {
-    kick:      [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0], // Kick on 1 and 3 (9)
-    snare:     [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0], // Snare on 2 and 4 (5 and 13)
+    kick:      [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0], // No kick
+    snare:     [0,0,0,0, 0,0,0,1, 0,0,0,0, 0,0,0,0], // Snare on 11 (switched from clap)
+    clap:      [0,0,0,0, 1,0,0,0, 0,0,0,0, 0,0,1,0], // Clap on 5 and 13 (switched from snare)
     hihat:     [1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0], // Steady 8th notes
-    openhihat: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0], // Minimal open hat
-    bass:      [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0]  // Bass locked with kick
+    openhihat: [0,0,0,0, 0,0,0,0, 0,0,0,0, 1,0,0,0], // No open hat
+    bass:      [1,0,0,0, 0,0,0,0, 0,0,1,0, 0,0,0,0]  // Bass on 4 and 12
   },
 
   edmPattern: {
-    kick:      [1,0,0,0, 1,0,0,0, 1,0,0,0, 1,0,0,0], // Four-on-the-floor
-    snare:     [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0], // Snare on 2 and 4
-    hihat:     [0,1,0,1, 0,1,0,1, 0,1,0,1, 0,1,0,1], // Offbeat hi-hats
-    openhihat: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0], // Minimal open hat
-    bass:      [1,0,0,0, 1,0,0,0, 1,0,0,0, 1,0,0,0]  // Bass follows kick
+    kick:      [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0], // No kick
+    snare:     [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0], // No snare (switched from clap)
+    clap:      [0,0,0,1, 0,0,0,0, 0,0,0,1, 0,0,0,0], // Clap on 5 and 13 (switched from snare)
+    hihat:     [1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0], // Offbeat hi-hats
+    openhihat: [0,0,0,0, 0,0,1,0, 0,0,0,0, 0,0,0,0], // Minimal open hat
+    bass:      [1,0,0,0, 1,0,0,0, 1,0,0,0, 1,0,0,0]  // Bass on every beat
   },
 
   rockPattern: {
-    kick:      [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,1,0],
-    snare:     [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
+    kick:      [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0], // No kick
+    snare:     [0,0,0,0, 0,0,1,0, 0,1,0,0, 0,0,0,0], // No snare (switched from clap)
+    clap:      [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0], // Clap on 5 and 13 (switched from snare)
     hihat:     [1,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,1],
-    openhihat: [0,0,0,0, 0,0,0,0, 0,1,0,0, 0,0,0,0],
-    bass:      [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0]
+    openhihat: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+    bass:      [1,0,0,0, 1,0,0,0, 1,0,0,0, 0,0,0,0]
   },
 
   trapPattern: {
-    kick:      [1,0,0,0, 0,1,0,0, 1,0,0,0, 0,0,1,0], // Trap kick pattern
-    snare:     [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0], // Snare on 2 and 4
-    hihat:     [1,0,1,1, 1,0,1,1, 1,0,1,1, 1,0,1,1], // Hi-hat rolls with gaps
-    openhihat: [0,0,0,0, 0,0,1,0, 0,0,0,0, 0,0,1,0], // Open hat accents
-    bass:      [1,0,0,0, 0,1,0,0, 1,0,0,0, 0,0,1,0]  // Bass follows kick
+    kick:      [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0], // No kick
+    snare:     [0,0,0,0, 0,0,0,0, 0,0,0,0, 1,1,1,0], // No snare (switched from clap)
+    clap:      [0,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0], // Clap on 5 and 13 (switched from snare)
+    hihat:     [1,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,1], // Hi-hat rolls with gaps
+    openhihat: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0], // Open hat accents
+    bass:      [1,0,0,0, 0,0,1,0, 0,0,0,0, 0,0,0,0]  // Bass pattern
   }
 };
 

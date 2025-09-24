@@ -16,6 +16,7 @@ export default function Create() {
   const [isRandomMode, setIsRandomMode] = useState(false);
   const [currentPattern, setCurrentPattern] = useState(GENRE_CONFIGS['hip-hop'].pattern);
   const [isExporting, setIsExporting] = useState(false);
+  const [trackVolumes, setTrackVolumes] = useState<Record<string, number>>({});
   
   const sampleEngineRef = useRef<EnhancedSampleEngine | null>(null);
   const exportEngineRef = useRef<ExportEngine | null>(null);
@@ -37,6 +38,22 @@ export default function Create() {
       sampleEngineRef.current.setVolume(volume);
     }
   }, [volume]);
+
+  // Initialize track volumes from sample engine
+  useEffect(() => {
+    if (sampleEngineRef.current) {
+      setTrackVolumes(sampleEngineRef.current.getAllTrackVolumes());
+    }
+  }, []);
+
+  // Update sample engine when track volumes change
+  useEffect(() => {
+    if (sampleEngineRef.current) {
+      Object.entries(trackVolumes).forEach(([track, volume]) => {
+        sampleEngineRef.current?.setTrackVolume(track, volume);
+      });
+    }
+  }, [trackVolumes]);
 
 
   useEffect(() => {
@@ -103,6 +120,13 @@ export default function Create() {
 
   const handlePatternChange = (newPattern: any) => {
     setCurrentPattern(newPattern);
+  };
+
+  const handleTrackVolumeChange = (track: string, volume: number) => {
+    setTrackVolumes(prev => ({
+      ...prev,
+      [track]: volume
+    }));
   };
 
   const loadGenrePattern = (genre: string) => {
@@ -333,6 +357,8 @@ export default function Create() {
               currentStep={currentStep}
               isPlaying={isPlaying}
               onPatternChange={handlePatternChange}
+              trackVolumes={trackVolumes}
+              onVolumeChange={handleTrackVolumeChange}
             />
           </div>
 

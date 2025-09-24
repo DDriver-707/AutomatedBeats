@@ -2,6 +2,7 @@
 export interface BeatPattern {
   kick: number[];
   snare: number[];
+  clap: number[];
   hihat: number[];
   openHat: number[];
   bass: number[];

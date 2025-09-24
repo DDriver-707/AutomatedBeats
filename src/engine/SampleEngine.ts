@@ -4,6 +4,7 @@ import type { BeatPattern, GenreConfig } from '../types/BeatTypes';
 export interface AudioSample {
   kick: string[];
   snare: string[];
+  clap: string[];
   hihat: string[];
   openHat: string[];
   bass: string[];
@@ -60,16 +61,6 @@ export class SampleEngine {
   private async playSample(sampleUrl: string, volume: number = 1.0, instrument: string = '') {
     if (!this.audioContext || !this.gainNode) return;
 
-    // Stop previous sample of the same instrument to prevent overlap
-    if (instrument && this.currentSources.has(instrument)) {
-      try {
-        this.currentSources.get(instrument)?.stop();
-      } catch (e) {
-        // Source might already be stopped
-      }
-      this.currentSources.delete(instrument);
-    }
-
     const buffer = await this.loadAudioBuffer(sampleUrl);
     if (!buffer) return;
 
@@ -82,18 +73,15 @@ export class SampleEngine {
     source.connect(gain);
     gain.connect(this.gainNode);
     
-    // Store the source for potential stopping
-    if (instrument) {
-      this.currentSources.set(instrument, source);
-    }
+    // Create unique key for this source instance to allow multiple simultaneous sounds
+    const sourceKey = `${instrument}_${Date.now()}_${Math.random()}`;
+    this.currentSources.set(sourceKey, source);
     
     source.start(this.audioContext.currentTime);
     
     // Clean up source when it ends
     source.onended = () => {
-      if (instrument) {
-        this.currentSources.delete(instrument);
-      }
+      this.currentSources.delete(sourceKey);
     };
   }
 
@@ -128,14 +116,14 @@ export class SampleEngine {
     const pattern = this.currentPattern;
     const samples = this.currentSamples;
 
-    // Play kick drum - use first sample only
-    if (pattern.kick[step] && samples.kick.length > 0) {
-      await this.playSample(samples.kick[0], 0.8, 'kick');
-    }
-
     // Play snare - use first sample only
     if (pattern.snare[step] && samples.snare.length > 0) {
       await this.playSample(samples.snare[0], 0.7, 'snare');
+    }
+
+    // Play clap - use first sample only
+    if (pattern.clap[step] && samples.clap.length > 0) {
+      await this.playSample(samples.clap[0], 0.6, 'clap');
     }
 
     // Play hi-hat - use first sample only

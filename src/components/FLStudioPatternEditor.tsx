@@ -5,13 +5,17 @@ interface FLStudioPatternEditorProps {
   currentStep: number;
   isPlaying: boolean;
   onPatternChange: (newPattern: BeatPattern) => void;
+  trackVolumes?: Record<string, number>;
+  onVolumeChange?: (track: string, volume: number) => void;
 }
 
 export default function FLStudioPatternEditor({ 
   pattern, 
   currentStep, 
   isPlaying, 
-  onPatternChange 
+  onPatternChange,
+  trackVolumes = {},
+  onVolumeChange
 }: FLStudioPatternEditorProps) {
   const steps = Array.from({ length: 16 }, (_, i) => i);
 
@@ -37,11 +41,11 @@ export default function FLStudioPatternEditor({
   };
 
   const instruments = [
-    { key: 'kick' as keyof BeatPattern, name: 'Kick', color: 'red', icon: '🥁' },
-    { key: 'snare' as keyof BeatPattern, name: 'Snare', color: 'blue', icon: '👏' },
-    { key: 'hihat' as keyof BeatPattern, name: 'Hi-Hat', color: 'yellow', icon: '🎵' },
-    { key: 'openHat' as keyof BeatPattern, name: 'Open Hat', color: 'orange', icon: '🔔' },
-    { key: 'bass' as keyof BeatPattern, name: 'Bass', color: 'purple', icon: '🎸' }
+    { key: 'snare' as keyof BeatPattern, name: 'Snare', color: 'blue', icon: '🥁', volumeKey: 'snare' },
+    { key: 'clap' as keyof BeatPattern, name: 'Clap', color: 'green', icon: '👏', volumeKey: 'clap' },
+    { key: 'hihat' as keyof BeatPattern, name: 'Hi-Hat', color: 'yellow', icon: '🎵', volumeKey: 'hihat' },
+    { key: 'openHat' as keyof BeatPattern, name: 'Open Hat', color: 'orange', icon: '🔔', volumeKey: 'openhat' },
+    { key: 'bass' as keyof BeatPattern, name: 'Bass', color: 'purple', icon: '🎸', volumeKey: 'bass' }
   ];
 
   return (
@@ -73,6 +77,11 @@ export default function FLStudioPatternEditor({
               {step + 1}
             </div>
           ))}
+        </div>
+
+        {/* Volume Header */}
+        <div className="flex-1 flex justify-center">
+          <span className="text-xs text-white/60 font-medium">Volume</span>
         </div>
       </div>
 
@@ -125,6 +134,31 @@ export default function FLStudioPatternEditor({
                 {pattern[instrument.key][step] > 0 ? '●' : ''}
               </button>
             ))}
+          </div>
+
+          {/* Volume Slider */}
+          <div className="flex-1 flex flex-col items-center px-2 py-1">
+            <div className="relative w-full bg-white/5 rounded-lg p-2 backdrop-blur-sm">
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value={trackVolumes[instrument.volumeKey] || 0.5}
+                onChange={(e) => onVolumeChange?.(instrument.volumeKey, parseFloat(e.target.value))}
+                className="w-full h-3 bg-white/10 rounded-full appearance-none cursor-pointer slider relative z-10"
+                style={{
+                  background: `linear-gradient(to right, #${instrument.color === 'yellow' ? 'fbbf24' : instrument.color === 'green' ? '10b981' : instrument.color === 'blue' ? '3b82f6' : instrument.color === 'orange' ? 'f97316' : '8b5cf6'} 0%, #${instrument.color === 'yellow' ? 'fbbf24' : instrument.color === 'green' ? '10b981' : instrument.color === 'blue' ? '3b82f6' : instrument.color === 'orange' ? 'f97316' : '8b5cf6'} ${(trackVolumes[instrument.volumeKey] || 0.5) * 100}%, rgba(255,255,255,0.15) ${(trackVolumes[instrument.volumeKey] || 0.5) * 100}%, rgba(255,255,255,0.15) 100%)`,
+                  boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.2)'
+                }}
+              />
+              {/* Volume percentage display */}
+              <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 w-10 text-center">
+                <span className="text-xs text-white/80 font-mono bg-black/20 px-1 rounded">
+                  {Math.round((trackVolumes[instrument.volumeKey] || 0.5) * 100)}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       ))}

@@ -24,6 +24,17 @@ export class EnhancedSampleEngine {
   private bassSources: AudioBufferSourceNode[] = [];
   private bassFilter: BiquadFilterNode | null = null;
   private bassGain: GainNode | null = null;
+  
+  // Individual track volumes
+  private trackVolumes: Record<string, number> = {
+    kick: 0.8,
+    snare: 0.7,
+    clap: 0.6,
+    hihat: 0.4,
+    openhat: 0.5,
+    bass: 0.6,
+    melody: 0.3
+  };
 
   constructor() {
     this.initializeAudioContext();
@@ -251,27 +262,32 @@ export class EnhancedSampleEngine {
 
     // Play kick drum
     if (pattern.kick[step] && samples.kick.length > 0) {
-      await this.playSample(samples.kick[0], 0.8, 'kick');
+      await this.playSample(samples.kick[0], this.trackVolumes.kick, 'kick');
     }
 
     // Play snare
     if (pattern.snare[step] && samples.snare.length > 0) {
-      await this.playSample(samples.snare[0], 0.7, 'snare');
+      await this.playSample(samples.snare[0], this.trackVolumes.snare, 'snare');
+    }
+
+    // Play clap
+    if (pattern.clap[step] && samples.clap.length > 0) {
+      await this.playSample(samples.clap[0], this.trackVolumes.clap, 'clap');
     }
 
     // Play hi-hat
     if (pattern.hihat[step] && samples.hihat.length > 0) {
-      await this.playSample(samples.hihat[0], 0.4, 'hihat');
+      await this.playSample(samples.hihat[0], this.trackVolumes.hihat, 'hihat');
     }
 
     // Play open hat
     if (pattern.openHat[step] && samples.openHat.length > 0) {
-      await this.playSample(samples.openHat[0], 0.5, 'openhat');
+      await this.playSample(samples.openHat[0], this.trackVolumes.openhat, 'openhat');
     }
 
     // Play enhanced bass/808
     if (pattern.bass[step] !== 0 && samples.bass.length > 0) {
-      await this.playEnhancedBass(samples.bass[0], 0.6);
+      await this.playEnhancedBass(samples.bass[0], this.trackVolumes.bass);
     }
   }
 
@@ -334,6 +350,21 @@ export class EnhancedSampleEngine {
     if (this.isPlaying && this.audioContext) {
       await this.loadMelodyLoop(melodyUrl, this.currentBPM);
     }
+  }
+
+  // Individual track volume control
+  setTrackVolume(track: string, volume: number) {
+    if (this.trackVolumes.hasOwnProperty(track)) {
+      this.trackVolumes[track] = Math.max(0, Math.min(1, volume));
+    }
+  }
+
+  getTrackVolume(track: string): number {
+    return this.trackVolumes[track] || 0;
+  }
+
+  getAllTrackVolumes(): Record<string, number> {
+    return { ...this.trackVolumes };
   }
 
 }

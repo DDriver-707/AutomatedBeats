@@ -133,11 +133,6 @@ export class BeatEngine {
     const step = this.currentStep;
     const pattern = this.currentPattern;
 
-    // Play kick drum
-    if (pattern.kick[step]) {
-      this.playKick();
-    }
-
     // Play snare
     if (pattern.snare[step]) {
       this.playSnare();
@@ -162,29 +157,6 @@ export class BeatEngine {
     if (pattern.bass[step] !== 0) {
       this.playBass(pattern.bass[step]);
     }
-  }
-
-  private playKick() {
-    if (!this.audioContext || !this.gainNode) return;
-
-    const oscillator = this.audioContext.createOscillator();
-    const gain = this.audioContext.createGain();
-    
-    oscillator.type = 'sine';
-    oscillator.frequency.setValueAtTime(60, this.audioContext.currentTime);
-    oscillator.frequency.exponentialRampToValueAtTime(30, this.audioContext.currentTime + 0.2);
-    
-    gain.gain.setValueAtTime(0.8, this.audioContext.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.2);
-    
-    oscillator.connect(gain);
-    gain.connect(this.gainNode);
-    
-    oscillator.start(this.audioContext.currentTime);
-    oscillator.stop(this.audioContext.currentTime + 0.2);
-
-    this.oscillatorNodes.push(oscillator);
-    this.gainNodes.push(gain);
   }
 
   private playSnare() {

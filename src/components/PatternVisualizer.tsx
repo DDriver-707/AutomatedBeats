@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import type { BeatPattern } from '../types/BeatTypes';
 
 interface PatternVisualizerProps {
@@ -12,34 +11,6 @@ export default function PatternVisualizer({ pattern, currentStep, isPlaying }: P
 
   return (
     <div className="space-y-3">
-      {/* Kick Pattern */}
-      <div className="space-y-1">
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded bg-red-500"></div>
-          <span className="text-xs font-medium text-white/80">Kick</span>
-        </div>
-        <div className="flex gap-1">
-          {steps.map((step) => (
-            <div
-              key={step}
-              className={`
-                w-6 h-6 rounded border transition-all duration-200 flex items-center justify-center text-xs
-                ${pattern.kick[step]
-                  ? 'bg-red-500 border-red-400 text-white'
-                  : 'bg-white/10 border-white/20 text-white/40'
-                }
-                ${currentStep === step && isPlaying
-                  ? 'ring-2 ring-red-400 ring-opacity-50 scale-110'
-                  : ''
-                }
-              `}
-            >
-              {step + 1}
-            </div>
-          ))}
-        </div>
-      </div>
-
       {/* Snare Pattern */}
       <div className="space-y-1">
         <div className="flex items-center gap-2">
@@ -58,6 +29,34 @@ export default function PatternVisualizer({ pattern, currentStep, isPlaying }: P
                 }
                 ${currentStep === step && isPlaying
                   ? 'ring-2 ring-blue-400 ring-opacity-50 scale-110'
+                  : ''
+                }
+              `}
+            >
+              {step + 1}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Clap Pattern */}
+      <div className="space-y-1">
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 rounded bg-green-500"></div>
+          <span className="text-xs font-medium text-white/80">Clap</span>
+        </div>
+        <div className="flex gap-1">
+          {steps.map((step) => (
+            <div
+              key={step}
+              className={`
+                w-6 h-6 rounded border transition-all duration-200 flex items-center justify-center text-xs
+                ${pattern.clap[step]
+                  ? 'bg-green-500 border-green-400 text-white'
+                  : 'bg-white/10 border-white/20 text-white/40'
+                }
+                ${currentStep === step && isPlaying
+                  ? 'ring-2 ring-green-400 ring-opacity-50 scale-110'
                   : ''
                 }
               `}
