@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Play, Pause, Square, Volume2, Shuffle, Music, Zap, RotateCcw, Download } from 'lucide-react';
+import { Play, Pause, Square, Volume2, Shuffle, Music, RotateCcw, Download } from 'lucide-react';
 import { EnhancedSampleEngine } from '../engine/EnhancedSampleEngine';
 import { SAMPLE_CONFIGS } from '../engine/SampleConfigs';
-import { GENRE_CONFIGS, generateRandomBeat } from '../engine/GenreConfigs';
+import { GENRE_CONFIGS } from '../engine/GenreConfigs';
 import { ExportEngine } from '../engine/ExportEngine';
+import { RandomBeatGenerator } from '../engine/RandomBeatGenerator';
 import FLStudioPatternEditor from '../components/FLStudioPatternEditor';
 import AudioVisualizer from '../components/AudioVisualizer';
 
@@ -13,10 +14,20 @@ export default function Create() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.5);
   const [currentStep, setCurrentStep] = useState(0);
-  const [isRandomMode, setIsRandomMode] = useState(false);
   const [currentPattern, setCurrentPattern] = useState(GENRE_CONFIGS['hip-hop'].pattern);
   const [isExporting, setIsExporting] = useState(false);
   const [trackVolumes, setTrackVolumes] = useState<Record<string, number>>({});
+  
+  // Individual sample selection indices for each instrument
+  const [sampleIndices, setSampleIndices] = useState<Record<string, number>>({
+    kick: 0,
+    snare: 0,
+    clap: 0,
+    hihat: 0,
+    openHat: 0,
+    bass: 0,
+    melody: 0
+  });
   
   const sampleEngineRef = useRef<EnhancedSampleEngine | null>(null);
   const exportEngineRef = useRef<ExportEngine | null>(null);
@@ -87,14 +98,25 @@ export default function Create() {
       setIsPlaying(false);
       setCurrentStep(0);
     } else {
-      const config = isRandomMode ? generateRandomBeat() : GENRE_CONFIGS[selectedGenre];
-      const samples = SAMPLE_CONFIGS[selectedGenre] || SAMPLE_CONFIGS['hip-hop'];
+      const config = GENRE_CONFIGS[selectedGenre];
+      const baseSamples = SAMPLE_CONFIGS[selectedGenre] || SAMPLE_CONFIGS['hip-hop'];
+      
+      // Create custom sample configuration using selected indices
+      const customSamples = {
+        kick: baseSamples.kick[sampleIndices.kick] ? [baseSamples.kick[sampleIndices.kick]] : baseSamples.kick.slice(0, 1),
+        snare: baseSamples.snare[sampleIndices.snare] ? [baseSamples.snare[sampleIndices.snare]] : baseSamples.snare.slice(0, 1),
+        clap: baseSamples.clap[sampleIndices.clap] ? [baseSamples.clap[sampleIndices.clap]] : baseSamples.clap.slice(0, 1),
+        hihat: baseSamples.hihat[sampleIndices.hihat] ? [baseSamples.hihat[sampleIndices.hihat]] : baseSamples.hihat.slice(0, 1),
+        openHat: baseSamples.openHat[sampleIndices.openHat] ? [baseSamples.openHat[sampleIndices.openHat]] : baseSamples.openHat.slice(0, 1),
+        bass: baseSamples.bass[sampleIndices.bass] ? [baseSamples.bass[sampleIndices.bass]] : baseSamples.bass.slice(0, 1),
+        melody: baseSamples.melody[sampleIndices.melody] ? [baseSamples.melody[sampleIndices.melody]] : baseSamples.melody.slice(0, 1)
+      };
       
       // Use current pattern instead of genre pattern
       const customConfig = { ...config, pattern: currentPattern };
       
       try {
-        await sampleEngineRef.current.playBeat(customConfig, samples);
+        await sampleEngineRef.current.playBeat(customConfig, customSamples);
         setIsPlaying(true);
       } catch (error) {
         console.error('Failed to play beat:', error);
@@ -108,13 +130,6 @@ export default function Create() {
       sampleEngineRef.current.stopBeat();
       setIsPlaying(false);
       setCurrentStep(0);
-    }
-  };
-
-  const handleRandomBeat = () => {
-    setIsRandomMode(!isRandomMode);
-    if (isPlaying) {
-      handleStop();
     }
   };
 
@@ -133,18 +148,161 @@ export default function Create() {
     setCurrentPattern(GENRE_CONFIGS[genre].pattern);
   };
 
+  // Randomize individual instrument sample AND pattern
+  const randomizeInstrument = (instrument: string) => {
+    const baseSamples = SAMPLE_CONFIGS[selectedGenre] || SAMPLE_CONFIGS['hip-hop'];
+    const instrumentKey = instrument as keyof typeof baseSamples;
+    const availableSamples = baseSamples[instrumentKey];
+    
+    // Only randomize if samples are available
+    if (!availableSamples || availableSamples.length === 0) {
+      return; // Don't randomize if no samples available
+    }
+    
+    // Randomize sample selection
+    const randomIndex = Math.floor(Math.random() * availableSamples.length);
+    setSampleIndices(prev => ({
+      ...prev,
+      [instrument]: randomIndex
+    }));
+    
+    // Randomize pattern for this instrument
+    const patternKey = instrument === 'melody' ? 'melody' : instrument as keyof typeof currentPattern;
+    if (patternKey && currentPattern[patternKey]) {
+      const newPattern = { ...currentPattern };
+      const randomSteps = new Array(16).fill(0);
+      
+      // Different randomization strategies based on instrument type
+      if (patternKey === 'kick') {
+        // Kicks on strong beats with some variation
+        [0, 4, 8, 12].forEach(pos => {
+          if (Math.random() > 0.2) randomSteps[pos] = 1;
+        });
+        // Add some off-beat kicks
+        for (let i = 1; i < 16; i += 2) {
+          if (Math.random() > 0.8) randomSteps[i] = 1;
+        }
+      } else if (patternKey === 'snare') {
+        // Snares typically on 2 and 4
+        [4, 12].forEach(pos => {
+          if (Math.random() > 0.15) randomSteps[pos] = 1;
+        });
+        // Ghost snares
+        for (let i = 0; i < 16; i++) {
+          if (![4, 12].includes(i) && Math.random() > 0.8) randomSteps[i] = 1;
+        }
+      } else if (patternKey === 'hihat') {
+        // Dense hi-hat patterns
+        const density = Math.random();
+        if (density > 0.7) {
+          // 16th notes
+          for (let i = 0; i < 16; i++) {
+            if (Math.random() > 0.2) randomSteps[i] = 1;
+          }
+        } else if (density > 0.4) {
+          // 8th notes with variation
+          for (let i = 0; i < 16; i += 2) {
+            if (Math.random() > 0.25) randomSteps[i] = 1;
+          }
+        } else {
+          // Quarter notes
+          for (let i = 0; i < 16; i += 4) {
+            if (Math.random() > 0.3) randomSteps[i] = 1;
+          }
+        }
+      } else if (patternKey === 'openHat') {
+        // Sparse open hats
+        [7, 15].forEach(pos => {
+          if (Math.random() > 0.5) randomSteps[pos] = 1;
+        });
+      } else if (patternKey === 'clap') {
+        // Claps on beats 2 and 4
+        [4, 12].forEach(pos => {
+          if (Math.random() > 0.3) randomSteps[pos] = 1;
+        });
+      } else if (patternKey === 'bass') {
+        // Bass follows kick-like pattern
+        [0, 4, 8, 12].forEach(pos => {
+          if (Math.random() > 0.3) randomSteps[pos] = 1;
+        });
+      } else {
+        // Default random pattern (for melody, etc.)
+        for (let i = 0; i < 16; i++) {
+          if (Math.random() > 0.6) randomSteps[i] = 1;
+        }
+      }
+      
+      newPattern[patternKey] = randomSteps;
+      setCurrentPattern(newPattern);
+    }
+    
+    // If playing, restart with new sample and pattern
+    if (isPlaying) {
+      handleStop();
+      setTimeout(() => handlePlayPause(), 100);
+    }
+  };
+
+  // Randomize ALL instruments (samples AND patterns)
+  const randomizePattern = async () => {
+    // Stop if playing
+    const wasPlaying = isPlaying;
+    if (wasPlaying) {
+      handleStop();
+    }
+    
+    // Get available samples for the current genre
+    const baseSamples = SAMPLE_CONFIGS[selectedGenre] || SAMPLE_CONFIGS['hip-hop'];
+    
+    // Randomize all patterns (only for instruments with available samples)
+    const randomPattern = RandomBeatGenerator.generateRandomPatternForGenre(baseSamples);
+    setCurrentPattern(randomPattern);
+    
+    // Randomize all samples
+    const newIndices: Record<string, number> = {};
+    
+    Object.keys(sampleIndices).forEach(instrument => {
+      const instrumentKey = instrument as keyof typeof baseSamples;
+      const availableSamples = baseSamples[instrumentKey];
+      if (availableSamples && availableSamples.length > 0) {
+        newIndices[instrument] = Math.floor(Math.random() * availableSamples.length);
+      } else {
+        newIndices[instrument] = 0;
+      }
+    });
+    
+    setSampleIndices(newIndices);
+    
+    // Restart if it was playing
+    if (wasPlaying) {
+      await new Promise(resolve => setTimeout(resolve, 150));
+      handlePlayPause();
+    }
+  };
+
   const handleExport = async () => {
     if (!exportEngineRef.current) return;
     
     setIsExporting(true);
     try {
-      const config = isRandomMode ? generateRandomBeat() : GENRE_CONFIGS[selectedGenre];
-      const samples = SAMPLE_CONFIGS[selectedGenre] || SAMPLE_CONFIGS['hip-hop'];
+      const config = GENRE_CONFIGS[selectedGenre];
+      const baseSamples = SAMPLE_CONFIGS[selectedGenre] || SAMPLE_CONFIGS['hip-hop'];
+      
+      // Use selected sample indices for export
+      const customSamples = {
+        kick: baseSamples.kick[sampleIndices.kick] ? [baseSamples.kick[sampleIndices.kick]] : baseSamples.kick.slice(0, 1),
+        snare: baseSamples.snare[sampleIndices.snare] ? [baseSamples.snare[sampleIndices.snare]] : baseSamples.snare.slice(0, 1),
+        clap: baseSamples.clap[sampleIndices.clap] ? [baseSamples.clap[sampleIndices.clap]] : baseSamples.clap.slice(0, 1),
+        hihat: baseSamples.hihat[sampleIndices.hihat] ? [baseSamples.hihat[sampleIndices.hihat]] : baseSamples.hihat.slice(0, 1),
+        openHat: baseSamples.openHat[sampleIndices.openHat] ? [baseSamples.openHat[sampleIndices.openHat]] : baseSamples.openHat.slice(0, 1),
+        bass: baseSamples.bass[sampleIndices.bass] ? [baseSamples.bass[sampleIndices.bass]] : baseSamples.bass.slice(0, 1),
+        melody: baseSamples.melody[sampleIndices.melody] ? [baseSamples.melody[sampleIndices.melody]] : baseSamples.melody.slice(0, 1)
+      };
       
       const mp3Blob = await exportEngineRef.current.exportBeatToMP3(
         config,
         currentPattern,
-        samples,
+        customSamples,
         60 // 60 seconds
       );
       
@@ -204,22 +362,25 @@ export default function Create() {
                 onClick={() => {
                   setSelectedGenre(key);
                   loadGenrePattern(key);
+                  // Reset sample indices when changing genre
+                  setSampleIndices({
+                    kick: 0, snare: 0, clap: 0, hihat: 0, openHat: 0, bass: 0, melody: 0
+                  });
                   if (isPlaying) handleStop();
                 }}
-                disabled={isRandomMode}
                 className={`
                   relative p-4 rounded-xl border-2 transition-all duration-300
-                  ${selectedGenre === key && !isRandomMode
+                  ${selectedGenre === key
                     ? 'border-purple-400 bg-purple-400/10 shadow-lg shadow-purple-400/20'
                     : 'border-white/20 bg-white/5 hover:border-white/40 hover:bg-white/10'
                   }
-                  ${isRandomMode ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+                  cursor-pointer
                 `}
               >
                 <div className="text-center">
                   <div className="text-lg font-semibold mb-1">{config.name}</div>
                 </div>
-                {selectedGenre === key && !isRandomMode && (
+                {selectedGenre === key && (
                   <motion.div
                     layoutId="selected-genre"
                     className="absolute inset-0 rounded-xl border-2 border-purple-400 bg-purple-400/10"
@@ -262,19 +423,15 @@ export default function Create() {
               <button
                 onClick={handleStop}
                 className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all duration-300"
+                title="Stop"
               >
                 <Square className="w-6 h-6" />
               </button>
 
               <button
-                onClick={handleRandomBeat}
-                className={`
-                  w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300
-                  ${isRandomMode
-                    ? 'bg-purple-500 shadow-lg shadow-purple-500/30'
-                    : 'bg-white/10 hover:bg-white/20'
-                  }
-                `}
+                onClick={randomizePattern}
+                className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all duration-300"
+                title="Randomize All Samples & Patterns"
               >
                 <Shuffle className="w-6 h-6" />
               </button>
@@ -327,17 +484,6 @@ export default function Create() {
             </div>
 
 
-            {/* Random Mode Indicator */}
-            {isRandomMode && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="flex items-center gap-2 px-4 py-2 bg-purple-500/20 rounded-full border border-purple-400/30"
-              >
-                <Zap className="w-4 h-4 text-purple-400" />
-                <span className="text-sm font-medium text-purple-300">Random Mode</span>
-              </motion.div>
-            )}
           </div>
         </motion.div>
 
@@ -359,7 +505,22 @@ export default function Create() {
               onPatternChange={handlePatternChange}
               trackVolumes={trackVolumes}
               onVolumeChange={handleTrackVolumeChange}
+              onRandomizeInstrument={randomizeInstrument}
+              availableSamples={SAMPLE_CONFIGS[selectedGenre] || SAMPLE_CONFIGS['hip-hop']}
             />
+          </div>
+
+          {/* Melody Randomizer */}
+          <div className="mt-6 flex items-center justify-center gap-3">
+            <span className="text-sm text-white/70">Melody:</span>
+            <button
+              onClick={() => randomizeInstrument('melody')}
+              className="px-4 py-2 bg-purple-500/20 hover:bg-purple-500/40 rounded-lg text-purple-300 hover:text-purple-200 transition-all duration-300 flex items-center gap-2 border border-purple-500/30"
+              title="Randomize Melody Sample & Pattern"
+            >
+              <span className="text-lg">🎹</span>
+              <span className="text-sm font-medium">Randomize Melody Sample & Pattern</span>
+            </button>
           </div>
 
 
@@ -370,13 +531,13 @@ export default function Create() {
               <div>
                 <span className="text-white/70">Genre:</span>
                 <div className="font-medium">
-                  {isRandomMode ? 'Random Beat' : GENRE_CONFIGS[selectedGenre]?.name}
+                  {GENRE_CONFIGS[selectedGenre]?.name}
                 </div>
               </div>
               <div>
                 <span className="text-white/70">BPM:</span>
                 <div className="font-medium">
-                  {isRandomMode ? '80-140' : GENRE_CONFIGS[selectedGenre]?.bpm}
+                  {GENRE_CONFIGS[selectedGenre]?.bpm}
                 </div>
               </div>
               <div>
@@ -401,8 +562,8 @@ export default function Create() {
           className="mt-8 text-center text-white/70"
         >
           <p>
-            Select a genre, adjust the volume, and click play to generate automated beats. 
-            Use the shuffle button for random beat generation with mixed patterns and tempos.
+            Select a genre, customize the pattern by clicking steps, and use the 🎲 buttons to randomize individual instrument samples and patterns. 
+            Use the main shuffle button (🔀) to randomize all instruments and patterns at once.
           </p>
         </motion.div>
       </div>

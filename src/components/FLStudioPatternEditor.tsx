@@ -7,6 +7,8 @@ interface FLStudioPatternEditorProps {
   onPatternChange: (newPattern: BeatPattern) => void;
   trackVolumes?: Record<string, number>;
   onVolumeChange?: (track: string, volume: number) => void;
+  onRandomizeInstrument?: (instrument: string) => void;
+  availableSamples?: Record<string, string[]>;
 }
 
 export default function FLStudioPatternEditor({ 
@@ -15,7 +17,9 @@ export default function FLStudioPatternEditor({
   isPlaying, 
   onPatternChange,
   trackVolumes = {},
-  onVolumeChange
+  onVolumeChange,
+  onRandomizeInstrument,
+  availableSamples = {}
 }: FLStudioPatternEditorProps) {
   const steps = Array.from({ length: 16 }, (_, i) => i);
 
@@ -41,12 +45,18 @@ export default function FLStudioPatternEditor({
   };
 
   const instruments = [
-    { key: 'snare' as keyof BeatPattern, name: 'Snare', color: 'blue', icon: '🥁', volumeKey: 'snare' },
-    { key: 'clap' as keyof BeatPattern, name: 'Clap', color: 'green', icon: '👏', volumeKey: 'clap' },
-    { key: 'hihat' as keyof BeatPattern, name: 'Hi-Hat', color: 'yellow', icon: '🎵', volumeKey: 'hihat' },
-    { key: 'openHat' as keyof BeatPattern, name: 'Open Hat', color: 'orange', icon: '🔔', volumeKey: 'openhat' },
-    { key: 'bass' as keyof BeatPattern, name: 'Bass', color: 'purple', icon: '🎸', volumeKey: 'bass' }
+    { key: 'kick' as keyof BeatPattern, name: 'Kick', color: 'red', icon: '🔊', volumeKey: 'kick', sampleKey: 'kick' },
+    { key: 'snare' as keyof BeatPattern, name: 'Snare', color: 'blue', icon: '🥁', volumeKey: 'snare', sampleKey: 'snare' },
+    { key: 'clap' as keyof BeatPattern, name: 'Clap', color: 'green', icon: '👏', volumeKey: 'clap', sampleKey: 'clap' },
+    { key: 'hihat' as keyof BeatPattern, name: 'Hi-Hat', color: 'yellow', icon: '🎵', volumeKey: 'hihat', sampleKey: 'hihat' },
+    { key: 'openHat' as keyof BeatPattern, name: 'Open Hat', color: 'orange', icon: '🔔', volumeKey: 'openhat', sampleKey: 'openHat' },
+    { key: 'bass' as keyof BeatPattern, name: 'Bass', color: 'purple', icon: '🎸', volumeKey: 'bass', sampleKey: 'bass' }
   ];
+
+  // Check if instrument has available samples
+  const hasSamples = (sampleKey: string) => {
+    return availableSamples[sampleKey] && availableSamples[sampleKey].length > 0;
+  };
 
   return (
     <div className="space-y-2">
@@ -55,8 +65,9 @@ export default function FLStudioPatternEditor({
         {/* Spacer for instrument label */}
         <div className="w-20"></div>
         
-        {/* Spacer for clear/fill buttons */}
+        {/* Spacer for clear/fill/shuffle buttons */}
         <div className="flex gap-1">
+          <div className="w-4 h-4"></div>
           <div className="w-4 h-4"></div>
           <div className="w-4 h-4"></div>
         </div>
@@ -86,29 +97,57 @@ export default function FLStudioPatternEditor({
       </div>
 
       {/* Instrument Rows */}
-      {instruments.map((instrument) => (
-        <div key={instrument.key} className="flex items-center gap-2">
+      {instruments.map((instrument) => {
+        const samplesAvailable = hasSamples(instrument.sampleKey);
+        
+        return (
+        <div key={instrument.key} className={`flex items-center gap-2 ${!samplesAvailable ? 'opacity-40' : ''}`}>
           {/* Instrument Label */}
           <div className="flex items-center gap-2 w-20">
             <span className="text-lg">{instrument.icon}</span>
-            <span className="text-xs font-medium text-white/80">{instrument.name}</span>
+            <span className={`text-xs font-medium ${samplesAvailable ? 'text-white/80' : 'text-white/40'}`}>
+              {instrument.name}
+              {!samplesAvailable && <span className="text-[8px] ml-1">(N/A)</span>}
+            </span>
           </div>
 
-          {/* Clear/Fill Buttons */}
+          {/* Clear/Fill/Shuffle Buttons */}
           <div className="flex gap-1">
             <button
               onClick={() => clearPattern(instrument.key)}
-              className="w-4 h-4 bg-red-500/20 hover:bg-red-500/40 rounded text-xs text-red-400 hover:text-red-300 transition-colors"
-              title="Clear"
+              disabled={!samplesAvailable}
+              className={`w-4 h-4 rounded text-xs transition-colors ${
+                samplesAvailable 
+                  ? 'bg-red-500/20 hover:bg-red-500/40 text-red-400 hover:text-red-300' 
+                  : 'bg-white/5 text-white/20 cursor-not-allowed'
+              }`}
+              title={samplesAvailable ? "Clear" : "No samples available"}
             >
               ×
             </button>
             <button
               onClick={() => fillPattern(instrument.key)}
-              className="w-4 h-4 bg-green-500/20 hover:bg-green-500/40 rounded text-xs text-green-400 hover:text-green-300 transition-colors"
-              title="Fill"
+              disabled={!samplesAvailable}
+              className={`w-4 h-4 rounded text-xs transition-colors ${
+                samplesAvailable 
+                  ? 'bg-green-500/20 hover:bg-green-500/40 text-green-400 hover:text-green-300' 
+                  : 'bg-white/5 text-white/20 cursor-not-allowed'
+              }`}
+              title={samplesAvailable ? "Fill" : "No samples available"}
             >
               +
+            </button>
+            <button
+              onClick={() => onRandomizeInstrument?.(instrument.sampleKey)}
+              disabled={!samplesAvailable}
+              className={`w-4 h-4 rounded text-xs transition-colors flex items-center justify-center ${
+                samplesAvailable 
+                  ? 'bg-purple-500/20 hover:bg-purple-500/40 text-purple-400 hover:text-purple-300' 
+                  : 'bg-white/5 text-white/20 cursor-not-allowed'
+              }`}
+              title={samplesAvailable ? "Randomize Sample & Pattern" : "No samples available"}
+            >
+              🎲
             </button>
           </div>
 
@@ -117,21 +156,24 @@ export default function FLStudioPatternEditor({
             {steps.map((step) => (
               <button
                 key={step}
-                onClick={() => toggleStep(instrument.key, step)}
+                onClick={() => samplesAvailable && toggleStep(instrument.key, step)}
+                disabled={!samplesAvailable}
                 className={`
                   w-6 h-6 rounded border transition-all duration-150 flex items-center justify-center text-xs font-bold
-                  ${pattern[instrument.key][step] > 0
-                    ? `bg-${instrument.color}-500 border-${instrument.color}-400 text-white`
-                    : 'bg-white/10 border-white/20 text-white/40 hover:bg-white/20'
+                  ${!samplesAvailable
+                    ? 'bg-white/5 border-white/10 text-white/20 cursor-not-allowed'
+                    : pattern[instrument.key][step] > 0
+                      ? `bg-${instrument.color}-500 border-${instrument.color}-400 text-white`
+                      : 'bg-white/10 border-white/20 text-white/40 hover:bg-white/20'
                   }
-                  ${currentStep === step && isPlaying
+                  ${currentStep === step && isPlaying && samplesAvailable
                     ? 'ring-2 ring-purple-400 ring-opacity-50 scale-110'
                     : ''
                   }
-                  hover:scale-105 active:scale-95
+                  ${samplesAvailable ? 'hover:scale-105 active:scale-95' : ''}
                 `}
               >
-                {pattern[instrument.key][step] > 0 ? '●' : ''}
+                {pattern[instrument.key][step] > 0 && samplesAvailable ? '●' : ''}
               </button>
             ))}
           </div>
@@ -161,7 +203,8 @@ export default function FLStudioPatternEditor({
             </div>
           </div>
         </div>
-      ))}
+      );
+      })}
 
       {/* Pattern Info */}
       <div className="mt-4 p-3 bg-white/5 rounded-lg">
@@ -169,7 +212,7 @@ export default function FLStudioPatternEditor({
         <div className="text-xs text-white/60 space-y-1">
           <div>• Click squares to toggle steps on/off</div>
           <div>• ● = Step is active, empty = Step is off</div>
-          <div>• × = Clear pattern, + = Fill pattern</div>
+          <div>• × = Clear pattern, + = Fill pattern, 🎲 = Randomize sample & pattern</div>
           <div>• Purple highlight shows current playing step</div>
         </div>
         

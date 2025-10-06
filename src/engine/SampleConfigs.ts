@@ -10,93 +10,117 @@ const createSampleUrls = (genre: string, type: string, files: string[]): string[
 
 export const SAMPLE_CONFIGS: Record<string, AudioSample> = {
   'hip-hop': {
-    kick: createSampleUrls('Hip Hop & Rap', 'Drum kits/Bass', [
-      '808 (1).wav',
-      '808 (2).wav',
-      '808 (3).wav'
-    ]),
+    kick: [], // No kick samples - hip-hop uses 808s for bass
     snare: createSampleUrls('Hip Hop & Rap', 'Drum kits/snares', [
       'snare (1).wav',
       'snare (2).wav',
       'snare (3).wav',
       'snare (4).wav',
-      'snare (5).wav'
+      'snare (5).wav',
+      'snare (6).wav',
+      'snare (7).wav',
+      'snare (8).wav'
     ]),
     clap: createSampleUrls('Hip Hop & Rap', 'Drum kits/claps', [
       'clap (1).wav',
       'clap (2).wav',
       'clap (3).wav',
       'clap (4).wav',
-      'clap (5).wav'
+      'clap (5).wav',
+      'clap (6).wav',
+      'clap (7).wav',
+      'clap (8).wav'
     ]),
     hihat: createSampleUrls('Hip Hop & Rap', 'Drum kits/hi hats', [
       'hi hat (1).wav',
       'hi hat (2).wav',
       'hi hat (3).wav',
       'hi hat (4).wav',
-      'hi hat (5).wav'
+      'hi hat (5).wav',
+      'hi hat (6).wav'
     ]),
     openHat: createSampleUrls('Hip Hop & Rap', 'Drum kits/open hats', [
       'open hat (1).wav',
       'open hat (2).wav',
       'open hat (3).wav',
       'open hat (4).wav',
-      'open hat (5).wav'
+      'open hat (5).wav',
+      'open hat (6).wav',
+      'open hat (7).wav'
     ]),
-    bass: createSampleUrls('Hip Hop & Rap', 'Drum kits/Bass', [
+    bass: createSampleUrls('Hip Hop & Rap', 'Drum kits/808', [
       '808 (1).wav',
       '808 (2).wav',
       '808 (3).wav',
       '808 (4).wav',
-      '808 (5).wav'
+      '808 (5).wav',
+      '808 (6).wav',
+      '808 (7).wav',
+      '808 (8).wav',
+      '808 (9).wav',
+      '808 (10).wav',
+      '808 (11).wav',
+      '808 (12).wav',
+      '808 (13).wav'
     ]),
     melody: createSampleUrls('Hip Hop & Rap', 'melodies', [
-      'don-toliver-x-gunna-type-loop-140-dmin.wav',
-      'Sample 2 84Bpm Prod.hegell.wav',
-      'Sample 3 94Bpm Prod.hegell.wav'
+      'don-toliver-x-gunna-type-loop-140-dmin.wav'
     ])
   },
 
   'emo-rap': {
-    kick: createSampleUrls('Emo Rap', 'Drum Kits', [
-      'BOOMIN KICK 1.wav',
-      'BOOMIN KICK 2.wav',
-      'BOOMIN KICK 3.wav'
-    ]),
+    kick: [], // No kick samples - emo rap uses 808s for bass
     snare: createSampleUrls('Emo Rap', 'Drum Kits/snares', [
       'snare (1).wav',
       'snare (2).wav',
       'snare (3).wav',
       'snare (4).wav',
-      'snare (5).wav'
+      'snare (5).wav',
+      'snare (6).wav',
+      'snare (7).wav',
+      'snare (8).wav'
     ]),
     clap: createSampleUrls('Emo Rap', 'Drum Kits/claps', [
       'clap (1).wav',
       'clap (2).wav',
       'clap (3).wav',
       'clap (4).wav',
-      'clap (5).wav'
+      'clap (5).wav',
+      'clap (6).wav',
+      'clap (7).wav',
+      'clap (8).wav'
     ]),
     hihat: createSampleUrls('Emo Rap', 'Drum Kits/hi hats', [
       'hi hat (1).wav',
       'hi hat (2).wav',
       'hi hat (3).wav',
       'hi hat (4).wav',
-      'hi hat (5).wav'
+      'hi hat (5).wav',
+      'hi hat (6).wav'
     ]),
     openHat: createSampleUrls('Emo Rap', 'Drum Kits/open hats', [
       'open hat (1).wav',
       'open hat (2).wav',
       'open hat (3).wav',
       'open hat (4).wav',
-      'open hat (5).wav'
+      'open hat (5).wav',
+      'open hat (6).wav',
+      'open hat (7).wav'
     ]),
-    bass: createSampleUrls('Emo Rap', 'Drum Kits/Bass', [
+    bass: createSampleUrls('Emo Rap', 'Drum Kits/808', [
       '808 (1).wav',
       '808 (2).wav',
       '808 (3).wav',
       '808 (4).wav',
-      '808 (5).wav'
+      '808 (5).wav',
+      '808 (6).wav',
+      '808 (7).wav',
+      '808 (8).wav',
+      '808 (9).wav',
+      '808 (10).wav',
+      '808 (11).wav',
+      '808 (12).wav',
+      '808 (13).wav'
     ]),
     melody: createSampleUrls('Emo Rap', 'Melodies', [
       'headaches 77 bpm.wav',
@@ -106,47 +130,58 @@ export const SAMPLE_CONFIGS: Record<string, AudioSample> = {
   },
 
   'trap': {
-    kick: createSampleUrls('Trap', 'Drum Kits/Bass', [
-      '808 (1).wav',
-      '808 (2).wav',
-      '808 (3).wav',
-      '808 (4).wav',
-      '808 (5).wav'
-    ]),
+    kick: [], // No kick samples - trap uses 808s for bass
     snare: createSampleUrls('Trap', 'Drum Kits/snares', [
       'snare (1).wav',
       'snare (2).wav',
       'snare (3).wav',
       'snare (4).wav',
-      'snare (5).wav'
+      'snare (5).wav',
+      'snare (6).wav',
+      'snare (7).wav',
+      'snare (8).wav'
     ]),
     clap: createSampleUrls('Trap', 'Drum Kits/claps', [
       'clap (1).wav',
       'clap (2).wav',
       'clap (3).wav',
       'clap (4).wav',
-      'clap (5).wav'
+      'clap (5).wav',
+      'clap (6).wav',
+      'clap (7).wav',
+      'clap (8).wav'
     ]),
     hihat: createSampleUrls('Trap', 'Drum Kits/hi hats', [
       'hi hat (1).wav',
       'hi hat (2).wav',
       'hi hat (3).wav',
       'hi hat (4).wav',
-      'hi hat (5).wav'
+      'hi hat (5).wav',
+      'hi hat (6).wav'
     ]),
     openHat: createSampleUrls('Trap', 'Drum Kits/open hats', [
       'open hat (1).wav',
       'open hat (2).wav',
       'open hat (3).wav',
       'open hat (4).wav',
-      'open hat (5).wav'
+      'open hat (5).wav',
+      'open hat (6).wav',
+      'open hat (7).wav'
     ]),
-    bass: createSampleUrls('Trap', 'Drum Kits/Bass', [
+    bass: createSampleUrls('Trap', 'Drum Kits/808', [
       '808 (1).wav',
       '808 (2).wav',
       '808 (3).wav',
       '808 (4).wav',
-      '808 (5).wav'
+      '808 (5).wav',
+      '808 (6).wav',
+      '808 (7).wav',
+      '808 (8).wav',
+      '808 (9).wav',
+      '808 (10).wav',
+      '808 (11).wav',
+      '808 (12).wav',
+      '808 (13).wav'
     ]),
     melody: createSampleUrls('Trap', 'Melodies', [
       'ken-carson-x-playboi-carti-synth-loop 140 bpm.wav',
@@ -157,45 +192,72 @@ export const SAMPLE_CONFIGS: Record<string, AudioSample> = {
 
   'country': {
     kick: createSampleUrls('Country', 'Drum Kits/Bass', [
-      '808 (1).wav',
-      '808 (2).wav',
-      '808 (3).wav',
-      '808 (4).wav',
-      '808 (5).wav'
+      'KSHMR Acoustic Kick 01.wav',
+      'KSHMR Acoustic Kick 02.wav',
+      'KSHMR Acoustic Kick 03.wav',
+      'KSHMR Acoustic Kick 04.wav',
+      'KSHMR Acoustic Kick 05.wav',
+      'KSHMR Acoustic Kick 06.wav',
+      'KSHMR Acoustic Kick 07.wav',
+      'KSHMR Acoustic Kick 08.wav'
     ]),
-    snare: createSampleUrls('Country', 'Drum Kits/Snare', [
-      'RD_S_7.wav',
-      'RD_S_8.wav',
-      'RD_S_9.wav',
-      'RD_S_10.wav',
-      'RD_S_11.wav'
+    snare: createSampleUrls('Country', 'Drum Kits/Snares', [
+      'KSHMR Acoustic Snare 01.wav',
+      'KSHMR Acoustic Snare 02.wav',
+      'KSHMR Acoustic Snare 03.wav',
+      'KSHMR Acoustic Snare 04.wav',
+      'KSHMR Acoustic Snare 05.wav',
+      'KSHMR Acoustic Snare 06.wav',
+      'KSHMR Acoustic Snare 07.wav',
+      'KSHMR Acoustic Snare 08.wav',
+      'KSHMR Acoustic Snare 09.wav',
+      'KSHMR Acoustic Snare 10.wav'
     ]),
-    clap: createSampleUrls('Country', 'Drum Kits/Claps', [
-      'RD_C_1.wav',
-      'RD_C_2.wav',
-      'RD_C_3.wav',
-      'RD_C_4.wav',
-      'RD_C_5.wav'
+    clap: createSampleUrls('Country', 'Drum Kits/Clap', [
+      'KSHMR Clap 26 - Tiny 05.wav'
     ]),
-    hihat: createSampleUrls('Country', 'Drum Kits/hi hats', [
-      'hi hat (1).wav',
-      'hi hat (2).wav',
-      'hi hat (3).wav',
-      'hi hat (4).wav',
-      'hi hat (5).wav'
+    hihat: createSampleUrls('Country', 'Drum Kits/Hi-Hat', [
+      'KSHMR Acoustic Closed Hat 01.wav',
+      'KSHMR Acoustic Closed Hat 02.wav',
+      'KSHMR Acoustic Closed Hat 03.wav',
+      'KSHMR Acoustic Closed Hat 04.wav',
+      'KSHMR Acoustic Closed Hat 05.wav',
+      'KSHMR Acoustic Closed Hat 06.wav',
+      'KSHMR Acoustic Closed Hat 07.wav',
+      'KSHMR Acoustic Closed Hat 08.wav',
+      'KSHMR Acoustic Closed Hat 09.wav',
+      'KSHMR Acoustic Closed Hat 10.wav',
+      'KSHMR Acoustic Closed Hat 11.wav',
+      'KSHMR Acoustic Closed Hat 12.wav',
+      'KSHMR Acoustic Closed Hat 13.wav',
+      'KSHMR Acoustic Closed Hat 14.wav',
+      'KSHMR Acoustic Stomp Hat 01.wav',
+      'KSHMR Acoustic Stomp Hat 02.wav'
     ]),
     openHat: createSampleUrls('Country', 'Drum Kits/Open Hat', [
-      'open hat (4).wav',
-      'open hat (5).wav',
-      'open hat (6).wav',
-      'open hat (7).wav'
+      'KSHMR Acoustic Open Hat 01.wav',
+      'KSHMR Acoustic Open Hat 02.wav',
+      'KSHMR Acoustic Open Hat 03.wav',
+      'KSHMR Acoustic Open Hat 04.wav',
+      'KSHMR Acoustic Open Hat 05.wav',
+      'KSHMR Acoustic Open Hat 06.wav',
+      'KSHMR Acoustic Open Hat 07.wav',
+      'KSHMR Acoustic Open Hat 08.wav',
+      'KSHMR Acoustic Open Hat 09.wav',
+      'KSHMR Acoustic Open Hat 10.wav',
+      'KSHMR Acoustic Open Hat 11.wav',
+      'KSHMR Acoustic Open Hat 12.wav',
+      'KSHMR Acoustic Open Hat 13.wav'
     ]),
     bass: createSampleUrls('Country', 'Drum Kits/Bass', [
-      '808 (1).wav',
-      '808 (2).wav',
-      '808 (3).wav',
-      '808 (4).wav',
-      '808 (5).wav'
+      'KSHMR Acoustic Kick 01.wav',
+      'KSHMR Acoustic Kick 02.wav',
+      'KSHMR Acoustic Kick 03.wav',
+      'KSHMR Acoustic Kick 04.wav',
+      'KSHMR Acoustic Kick 05.wav',
+      'KSHMR Acoustic Kick 06.wav',
+      'KSHMR Acoustic Kick 07.wav',
+      'KSHMR Acoustic Kick 08.wav'
     ]),
     melody: createSampleUrls('Country', 'Melodies', [
       'acoustic-guitar-x-country-midland-nightclub 150 bpm.wav',
@@ -253,47 +315,73 @@ export const SAMPLE_CONFIGS: Record<string, AudioSample> = {
   },
 
   'rock': {
-    kick: createSampleUrls('Rock', 'Drum Kits/Kicks', [
-      '[HR] KICK (1).wav',
-      '[HR] KICK (2).wav',
-      '[HR] KICK (3).wav',
-      '[HR] KICK (4).wav',
-      '[HR] KICK (5).wav'
+    kick: createSampleUrls('Rock', 'Drum Kits/Bass', [
+      'KSHMR Acoustic Kick 01.wav',
+      'KSHMR Acoustic Kick 02.wav',
+      'KSHMR Acoustic Kick 03.wav',
+      'KSHMR Acoustic Kick 04.wav',
+      'KSHMR Acoustic Kick 05.wav',
+      'KSHMR Acoustic Kick 06.wav',
+      'KSHMR Acoustic Kick 07.wav',
+      'KSHMR Acoustic Kick 08.wav'
     ]),
-    snare: createSampleUrls('Rock', 'Drum Kits/[HR] SNARES', [
-      '[HR] SNARE (1).wav',
-      '[HR] SNARE (2).wav',
-      '[HR] SNARE (3).wav',
-      '[HR] SNARE (4).wav',
-      '[HR] SNARE (5).wav'
+    snare: createSampleUrls('Rock', 'Drum Kits/Snares', [
+      'KSHMR Acoustic Snare 01.wav',
+      'KSHMR Acoustic Snare 02.wav',
+      'KSHMR Acoustic Snare 03.wav',
+      'KSHMR Acoustic Snare 04.wav',
+      'KSHMR Acoustic Snare 05.wav',
+      'KSHMR Acoustic Snare 06.wav',
+      'KSHMR Acoustic Snare 07.wav',
+      'KSHMR Acoustic Snare 08.wav',
+      'KSHMR Acoustic Snare 09.wav',
+      'KSHMR Acoustic Snare 10.wav'
     ]),
-    clap: createSampleUrls('Rock', 'Drum Kits/[HR] CLAPS', [
-      '[HR] CLAP (6).wav',
-      '[HR] CLAP (7).wav',
-      '[HR] CLAP (8).wav',
-      '[HR] CLAP (9).wav',
-      '[HR] CLAP (10).wav'
+    clap: createSampleUrls('Rock', 'Drum Kits/Clap', [
+      'KSHMR Clap 26 - Tiny 05.wav'
     ]),
-    hihat: createSampleUrls('Rock', 'Drum Kits/[HR] HATS', [
-      '[HR] HAT (1).wav',
-      '[HR] HAT (2).wav',
-      '[HR] HAT (3).wav',
-      '[HR] HAT (4).wav',
-      '[HR] HAT (5).wav'
+    hihat: createSampleUrls('Rock', 'Drum Kits/Hi-Hat', [
+      'KSHMR Acoustic Closed Hat 01.wav',
+      'KSHMR Acoustic Closed Hat 02.wav',
+      'KSHMR Acoustic Closed Hat 03.wav',
+      'KSHMR Acoustic Closed Hat 04.wav',
+      'KSHMR Acoustic Closed Hat 05.wav',
+      'KSHMR Acoustic Closed Hat 06.wav',
+      'KSHMR Acoustic Closed Hat 07.wav',
+      'KSHMR Acoustic Closed Hat 08.wav',
+      'KSHMR Acoustic Closed Hat 09.wav',
+      'KSHMR Acoustic Closed Hat 10.wav',
+      'KSHMR Acoustic Closed Hat 11.wav',
+      'KSHMR Acoustic Closed Hat 12.wav',
+      'KSHMR Acoustic Closed Hat 13.wav',
+      'KSHMR Acoustic Closed Hat 14.wav',
+      'KSHMR Acoustic Stomp Hat 01.wav',
+      'KSHMR Acoustic Stomp Hat 02.wav'
     ]),
-    openHat: createSampleUrls('Rock', 'Drum Kits/[HR] HATS', [
-      '[HR] HAT (15).wav',
-      '[HR] HAT (16).wav',
-      '[HR] HAT (17).wav',
-      '[HR] HAT (18).wav',
-      '[HR] HAT (19).wav'
+    openHat: createSampleUrls('Rock', 'Drum Kits/Open Hat', [
+      'KSHMR Acoustic Open Hat 01.wav',
+      'KSHMR Acoustic Open Hat 02.wav',
+      'KSHMR Acoustic Open Hat 03.wav',
+      'KSHMR Acoustic Open Hat 04.wav',
+      'KSHMR Acoustic Open Hat 05.wav',
+      'KSHMR Acoustic Open Hat 06.wav',
+      'KSHMR Acoustic Open Hat 07.wav',
+      'KSHMR Acoustic Open Hat 08.wav',
+      'KSHMR Acoustic Open Hat 09.wav',
+      'KSHMR Acoustic Open Hat 10.wav',
+      'KSHMR Acoustic Open Hat 11.wav',
+      'KSHMR Acoustic Open Hat 12.wav',
+      'KSHMR Acoustic Open Hat 13.wav'
     ]),
     bass: createSampleUrls('Rock', 'Drum Kits/Bass', [
-      '808 (1).wav',
-      '808 (2).wav',
-      '808 (3).wav',
-      '808 (4).wav',
-      '808 (5).wav'
+      'KSHMR Acoustic Kick 01.wav',
+      'KSHMR Acoustic Kick 02.wav',
+      'KSHMR Acoustic Kick 03.wav',
+      'KSHMR Acoustic Kick 04.wav',
+      'KSHMR Acoustic Kick 05.wav',
+      'KSHMR Acoustic Kick 06.wav',
+      'KSHMR Acoustic Kick 07.wav',
+      'KSHMR Acoustic Kick 08.wav'
     ]),
     melody: createSampleUrls('Rock', 'Melodies', [
       'chicken-nuggets 110bpm.wav',
