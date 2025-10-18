@@ -93,11 +93,11 @@ export class EnhancedSampleEngine {
   }
 
   private calculatePlaybackRate(currentBPM: number, sampleBPM: number): number {
-    return sampleBPM / currentBPM;
+    return currentBPM / sampleBPM;
   }
 
   private async loadMelodyLoop(melodyUrl: string, currentBPM: number) {
-    if (!this.audioContext) return;
+    if (!this.audioContext || !this.gainNode) return;
 
     // Stop current melody
     if (this.melodySource) {

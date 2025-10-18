@@ -47,7 +47,7 @@ export const patterns = {
 
   trapPattern: {
     kick:      [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0], // No kick
-    snare:     [0,0,0,0, 0,0,0,0, 0,0,0,0, 1,1,1,0], // No snare (switched from clap)
+    snare:     [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0], // No snare (switched from clap)
     clap:      [0,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0], // Clap on 5 and 13 (switched from snare)
     hihat:     [1,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,1], // Hi-hat rolls with gaps
     openhihat: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0], // Open hat accents
@@ -76,9 +76,9 @@ export const swingPatterns = {
 // Genre-specific BPM ranges
 export const genreBPMs = {
   hiphop: { min: 85, max: 95, default: 90 },
-  emorap: { min: 65, max: 75, default: 70 },
-  country: { min: 95, max: 110, default: 100 },
-  edm: { min: 120, max: 128, default: 125 },
-  rock: { min: 100, max: 120, default: 110 },
-  trap: { min: 130, max: 150, default: 140 }
+  emorap: { min: 75, max: 85, default: 80 },
+  country: { min: 100, max: 120, default: 110 },
+  edm: { min: 125, max: 130, default: 128 },
+  rock: { min: 110, max: 130, default: 120 },
+  trap: { min: 140, max: 150, default: 145 }
 };

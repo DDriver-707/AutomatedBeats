@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Play, Pause, Square, Volume2, Shuffle, Music, RotateCcw, Download } from 'lucide-react';
+import { Play, Pause, Square, Volume2, Shuffle, Music, RotateCcw, Download, Disc3, Grid3x3 } from 'lucide-react';
 import { EnhancedSampleEngine } from '../engine/EnhancedSampleEngine';
 import { SAMPLE_CONFIGS } from '../engine/SampleConfigs';
 import { GENRE_CONFIGS } from '../engine/GenreConfigs';
@@ -148,8 +148,8 @@ export default function Create() {
     setCurrentPattern(GENRE_CONFIGS[genre].pattern);
   };
 
-  // Randomize individual instrument sample AND pattern
-  const randomizeInstrument = (instrument: string) => {
+  // Randomize individual instrument sample only
+  const randomizeInstrumentSample = (instrument: string) => {
     const baseSamples = SAMPLE_CONFIGS[selectedGenre] || SAMPLE_CONFIGS['hip-hop'];
     const instrumentKey = instrument as keyof typeof baseSamples;
     const availableSamples = baseSamples[instrumentKey];
@@ -165,6 +165,24 @@ export default function Create() {
       ...prev,
       [instrument]: randomIndex
     }));
+    
+    // If playing, restart with new sample
+    if (isPlaying) {
+      handleStop();
+      setTimeout(() => handlePlayPause(), 100);
+    }
+  };
+
+  // Randomize individual instrument pattern only
+  const randomizeInstrumentPattern = (instrument: string) => {
+    const baseSamples = SAMPLE_CONFIGS[selectedGenre] || SAMPLE_CONFIGS['hip-hop'];
+    const instrumentKey = instrument as keyof typeof baseSamples;
+    const availableSamples = baseSamples[instrumentKey];
+    
+    // Only randomize if samples are available
+    if (!availableSamples || availableSamples.length === 0) {
+      return; // Don't randomize if no samples available
+    }
     
     // Randomize pattern for this instrument
     const patternKey = instrument === 'melody' ? 'melody' : instrument as keyof typeof currentPattern;
@@ -236,15 +254,15 @@ export default function Create() {
       setCurrentPattern(newPattern);
     }
     
-    // If playing, restart with new sample and pattern
+    // If playing, restart with new pattern
     if (isPlaying) {
       handleStop();
       setTimeout(() => handlePlayPause(), 100);
     }
   };
 
-  // Randomize ALL instruments (samples AND patterns)
-  const randomizePattern = async () => {
+  // Randomize ALL samples only
+  const randomizeAllSamples = async () => {
     // Stop if playing
     const wasPlaying = isPlaying;
     if (wasPlaying) {
@@ -253,10 +271,6 @@ export default function Create() {
     
     // Get available samples for the current genre
     const baseSamples = SAMPLE_CONFIGS[selectedGenre] || SAMPLE_CONFIGS['hip-hop'];
-    
-    // Randomize all patterns (only for instruments with available samples)
-    const randomPattern = RandomBeatGenerator.generateRandomPatternForGenre(baseSamples);
-    setCurrentPattern(randomPattern);
     
     // Randomize all samples
     const newIndices: Record<string, number> = {};
@@ -272,6 +286,28 @@ export default function Create() {
     });
     
     setSampleIndices(newIndices);
+    
+    // Restart if it was playing
+    if (wasPlaying) {
+      await new Promise(resolve => setTimeout(resolve, 150));
+      handlePlayPause();
+    }
+  };
+
+  // Randomize ALL patterns only
+  const randomizeAllPatterns = async () => {
+    // Stop if playing
+    const wasPlaying = isPlaying;
+    if (wasPlaying) {
+      handleStop();
+    }
+    
+    // Get available samples for the current genre
+    const baseSamples = SAMPLE_CONFIGS[selectedGenre] || SAMPLE_CONFIGS['hip-hop'];
+    
+    // Randomize all patterns (only for instruments with available samples)
+    const randomPattern = RandomBeatGenerator.generateRandomPatternForGenre(baseSamples);
+    setCurrentPattern(randomPattern);
     
     // Restart if it was playing
     if (wasPlaying) {
@@ -429,11 +465,19 @@ export default function Create() {
               </button>
 
               <button
-                onClick={randomizePattern}
+                onClick={randomizeAllSamples}
                 className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all duration-300"
-                title="Randomize All Samples & Patterns"
+                title="Randomize All Samples"
               >
-                <Shuffle className="w-6 h-6" />
+                <Disc3 className="w-6 h-6" />
+              </button>
+
+              <button
+                onClick={randomizeAllPatterns}
+                className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all duration-300"
+                title="Randomize All Patterns"
+              >
+                <Grid3x3 className="w-6 h-6" />
               </button>
 
               <button
@@ -505,7 +549,8 @@ export default function Create() {
               onPatternChange={handlePatternChange}
               trackVolumes={trackVolumes}
               onVolumeChange={handleTrackVolumeChange}
-              onRandomizeInstrument={randomizeInstrument}
+              onRandomizeSample={randomizeInstrumentSample}
+              onRandomizePattern={randomizeInstrumentPattern}
               availableSamples={SAMPLE_CONFIGS[selectedGenre] || SAMPLE_CONFIGS['hip-hop']}
             />
           </div>
@@ -514,12 +559,20 @@ export default function Create() {
           <div className="mt-6 flex items-center justify-center gap-3">
             <span className="text-sm text-white/70">Melody:</span>
             <button
-              onClick={() => randomizeInstrument('melody')}
+              onClick={() => randomizeInstrumentSample('melody')}
               className="px-4 py-2 bg-purple-500/20 hover:bg-purple-500/40 rounded-lg text-purple-300 hover:text-purple-200 transition-all duration-300 flex items-center gap-2 border border-purple-500/30"
-              title="Randomize Melody Sample & Pattern"
+              title="Randomize Melody Sample"
             >
-              <span className="text-lg">🎹</span>
-              <span className="text-sm font-medium">Randomize Melody Sample & Pattern</span>
+              <span className="text-lg">🎵</span>
+              <span className="text-sm font-medium">Randomize Melody Sample</span>
+            </button>
+            <button
+              onClick={() => randomizeInstrumentPattern('melody')}
+              className="px-4 py-2 bg-blue-500/20 hover:bg-blue-500/40 rounded-lg text-blue-300 hover:text-blue-200 transition-all duration-300 flex items-center gap-2 border border-blue-500/30"
+              title="Randomize Melody Pattern"
+            >
+              <span className="text-lg">🎲</span>
+              <span className="text-sm font-medium">Randomize Melody Pattern</span>
             </button>
           </div>
 
@@ -562,8 +615,8 @@ export default function Create() {
           className="mt-8 text-center text-white/70"
         >
           <p>
-            Select a genre, customize the pattern by clicking steps, and use the 🎲 buttons to randomize individual instrument samples and patterns. 
-            Use the main shuffle button (🔀) to randomize all instruments and patterns at once.
+            Select a genre, customize the pattern by clicking steps. Use the disc icon to randomize all samples, or the grid icon to randomize all patterns.
+            Each instrument has individual buttons to randomize its sample (🎵) or pattern (🎲) separately.
           </p>
         </motion.div>
       </div>

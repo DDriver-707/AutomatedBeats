@@ -7,7 +7,8 @@ interface FLStudioPatternEditorProps {
   onPatternChange: (newPattern: BeatPattern) => void;
   trackVolumes?: Record<string, number>;
   onVolumeChange?: (track: string, volume: number) => void;
-  onRandomizeInstrument?: (instrument: string) => void;
+  onRandomizeSample?: (instrument: string) => void;
+  onRandomizePattern?: (instrument: string) => void;
   availableSamples?: Record<string, string[]>;
 }
 
@@ -18,7 +19,8 @@ export default function FLStudioPatternEditor({
   onPatternChange,
   trackVolumes = {},
   onVolumeChange,
-  onRandomizeInstrument,
+  onRandomizeSample,
+  onRandomizePattern,
   availableSamples = {}
 }: FLStudioPatternEditorProps) {
   const steps = Array.from({ length: 16 }, (_, i) => i);
@@ -70,6 +72,7 @@ export default function FLStudioPatternEditor({
           <div className="w-4 h-4"></div>
           <div className="w-4 h-4"></div>
           <div className="w-4 h-4"></div>
+          <div className="w-4 h-4"></div>
         </div>
 
         {/* Step Numbers */}
@@ -111,7 +114,7 @@ export default function FLStudioPatternEditor({
             </span>
           </div>
 
-          {/* Clear/Fill/Shuffle Buttons */}
+          {/* Clear/Fill/Randomize Buttons */}
           <div className="flex gap-1">
             <button
               onClick={() => clearPattern(instrument.key)}
@@ -138,14 +141,26 @@ export default function FLStudioPatternEditor({
               +
             </button>
             <button
-              onClick={() => onRandomizeInstrument?.(instrument.sampleKey)}
+              onClick={() => onRandomizeSample?.(instrument.sampleKey)}
               disabled={!samplesAvailable}
               className={`w-4 h-4 rounded text-xs transition-colors flex items-center justify-center ${
                 samplesAvailable 
                   ? 'bg-purple-500/20 hover:bg-purple-500/40 text-purple-400 hover:text-purple-300' 
                   : 'bg-white/5 text-white/20 cursor-not-allowed'
               }`}
-              title={samplesAvailable ? "Randomize Sample & Pattern" : "No samples available"}
+              title={samplesAvailable ? "Randomize Sample" : "No samples available"}
+            >
+              🎵
+            </button>
+            <button
+              onClick={() => onRandomizePattern?.(instrument.sampleKey)}
+              disabled={!samplesAvailable}
+              className={`w-4 h-4 rounded text-xs transition-colors flex items-center justify-center ${
+                samplesAvailable 
+                  ? 'bg-blue-500/20 hover:bg-blue-500/40 text-blue-400 hover:text-blue-300' 
+                  : 'bg-white/5 text-white/20 cursor-not-allowed'
+              }`}
+              title={samplesAvailable ? "Randomize Pattern" : "No samples available"}
             >
               🎲
             </button>
@@ -212,7 +227,8 @@ export default function FLStudioPatternEditor({
         <div className="text-xs text-white/60 space-y-1">
           <div>• Click squares to toggle steps on/off</div>
           <div>• ● = Step is active, empty = Step is off</div>
-          <div>• × = Clear pattern, + = Fill pattern, 🎲 = Randomize sample & pattern</div>
+          <div>• × = Clear pattern, + = Fill pattern</div>
+          <div>• 🎵 = Randomize sample, 🎲 = Randomize pattern</div>
           <div>• Purple highlight shows current playing step</div>
         </div>
         
