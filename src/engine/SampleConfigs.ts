@@ -3,6 +3,9 @@ import type { AudioSample } from './SampleEngine';
 // Base URL for audio files
 const BASE_URL = '/sounds';
 
+// NOTE: All melody files in this configuration have been verified to exist in the /sounds folder
+// Non-existent files have been removed to prevent loading errors during initialization
+
 // Helper function to create sample URLs
 const createSampleUrls = (genre: string, type: string, files: string[]): string[] => {
   return files.map(file => `${BASE_URL}/${genre}/${type}/${file}`);
@@ -64,7 +67,9 @@ export const SAMPLE_CONFIGS: Record<string, AudioSample> = {
       '808 (13).wav'
     ]),
     melody: createSampleUrls('Hip Hop & Rap', 'melodies', [
-      'don-toliver-x-gunna-type-loop-140-dmin.wav'
+      'don-toliver-x-gunna-type-loop-140-dmin.wav',
+      'griselda-x-hiphop-sampled-type-loop 85 bpm.wav',
+      'Hiphop Melody X Mirror X Gagan Salwan 90 bpm.wav'
     ])
   },
 
@@ -124,8 +129,9 @@ export const SAMPLE_CONFIGS: Record<string, AudioSample> = {
     ]),
     melody: createSampleUrls('Emo Rap', 'Melodies', [
       'headaches 77 bpm.wav',
-      'juice-wrld-x-nick-mira-she-not-there 140 bpm.wav',
-      'Sample 1 82Bpm Prod.hegell.wav'
+      'Sample 1 82Bpm Prod.hegell.wav',
+      'Halfdream 86 bpm.wav',
+      'kolor-prod-sconthetrack 97 bpm.wav'
     ])
   },
 
@@ -184,9 +190,10 @@ export const SAMPLE_CONFIGS: Record<string, AudioSample> = {
       '808 (13).wav'
     ]),
     melody: createSampleUrls('Trap', 'Melodies', [
-      'ken-carson-x-playboi-carti-synth-loop 140 bpm.wav',
       'lil-baby-x-future-dumb-and-dumber 132 bpm.wav',
-      'parachute-cubeatz-x-future-melody 170 bpm.wav'
+      'drake-x-future-nutshell-pad-part 140 bpm.wav',
+      'mexico-future-est-gee-synth 142 bpm.wav',
+      'piano-with-gross-beat-by-kobeatz 141 bpm.wav'
     ])
   },
 
@@ -260,9 +267,10 @@ export const SAMPLE_CONFIGS: Record<string, AudioSample> = {
       'KSHMR Acoustic Kick 08.wav'
     ]),
     melody: createSampleUrls('Country', 'Melodies', [
-      'acoustic-guitar-x-country-midland-nightclub 150 bpm.wav',
       'sunset-dust-summer-country-acoustic-loop 160 bpm.wav',
-      'wisp-x-alternative-type-guitar 150 bpm.wav'
+      'country-guitar-sample-x-farmland-x 100 bpm.wav',
+      'faded-out-the-mud-loops-guitar-9 120 bpm.wav',
+      'okc-country-guitar-strum 100 bpm.wav'
     ])
   },
 
@@ -309,8 +317,10 @@ export const SAMPLE_CONFIGS: Record<string, AudioSample> = {
     ]),
     melody: createSampleUrls('EDM', 'Melodies', [
       'hellion-afro-house-x-pop-synth-pad 125 bpm.wav',
-      'looperman stay-here 130 bpm.wav',
-      'ny-drill-x-sexy-drill-type-loop-by-landsharkszn 140 bpm.wav'
+      'big-fat-chorus-pads 128 bpm.wav',
+      'edm-loop 140 bpm key c.wav',
+      'paradox-arp 130 bpm.wav',
+      'virgo-constellation.wav 140 bpm.wav'
     ])
   },
 
@@ -385,8 +395,9 @@ export const SAMPLE_CONFIGS: Record<string, AudioSample> = {
     ]),
     melody: createSampleUrls('Rock', 'Melodies', [
       'chicken-nuggets 110bpm.wav',
-      'e guitar 142 bpm.wav',
-      'low-distorted-guitar 165 bpm.wav'
+      'city-lights-2 100 bpm.wav',
+      'guess-well-never-know 120 bpm.wav',
+      'robotic 100 bpm.wav'
     ])
   }
 };

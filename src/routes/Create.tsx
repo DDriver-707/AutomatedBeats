@@ -149,7 +149,7 @@ export default function Create() {
   };
 
   // Randomize individual instrument sample only
-  const randomizeInstrumentSample = (instrument: string) => {
+  const randomizeInstrumentSample = async (instrument: string) => {
     const baseSamples = SAMPLE_CONFIGS[selectedGenre] || SAMPLE_CONFIGS['hip-hop'];
     const instrumentKey = instrument as keyof typeof baseSamples;
     const availableSamples = baseSamples[instrumentKey];
@@ -165,6 +165,23 @@ export default function Create() {
       ...prev,
       [instrument]: randomIndex
     }));
+    
+    // Special handling for melody samples - extract BPM and update genre BPM
+    if (instrument === 'melody' && availableSamples[randomIndex]) {
+      const melodyUrl = availableSamples[randomIndex];
+      const bpmMatch = melodyUrl.match(/(\d+)\s*bpm/i);
+      if (bpmMatch) {
+        const melodyBPM = parseInt(bpmMatch[1]);
+        // Update the current genre's BPM to match the melody
+        const updatedConfig = { ...GENRE_CONFIGS[selectedGenre], bpm: melodyBPM };
+        GENRE_CONFIGS[selectedGenre] = updatedConfig;
+        
+        // If playing, update BPM in real-time with genre context
+        if (isPlaying && sampleEngineRef.current) {
+          await sampleEngineRef.current.updateBPM(melodyBPM, selectedGenre);
+        }
+      }
+    }
     
     // If playing, restart with new sample
     if (isPlaying) {
@@ -284,6 +301,18 @@ export default function Create() {
         newIndices[instrument] = 0;
       }
     });
+    
+    // Check if melody was randomized and update BPM accordingly
+    if (baseSamples.melody && baseSamples.melody.length > 0) {
+      const melodyUrl = baseSamples.melody[newIndices.melody];
+      const bpmMatch = melodyUrl.match(/(\d+)\s*bpm/i);
+      if (bpmMatch) {
+        const melodyBPM = parseInt(bpmMatch[1]);
+        // Update the current genre's BPM to match the melody
+        const updatedConfig = { ...GENRE_CONFIGS[selectedGenre], bpm: melodyBPM };
+        GENRE_CONFIGS[selectedGenre] = updatedConfig;
+      }
+    }
     
     setSampleIndices(newIndices);
     
@@ -565,14 +594,6 @@ export default function Create() {
             >
               <span className="text-lg">🎵</span>
               <span className="text-sm font-medium">Randomize Melody Sample</span>
-            </button>
-            <button
-              onClick={() => randomizeInstrumentPattern('melody')}
-              className="px-4 py-2 bg-blue-500/20 hover:bg-blue-500/40 rounded-lg text-blue-300 hover:text-blue-200 transition-all duration-300 flex items-center gap-2 border border-blue-500/30"
-              title="Randomize Melody Pattern"
-            >
-              <span className="text-lg">🎲</span>
-              <span className="text-sm font-medium">Randomize Melody Pattern</span>
             </button>
           </div>
 

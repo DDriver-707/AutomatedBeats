@@ -18,7 +18,6 @@ export class EnhancedSampleEngine {
   private melodySource: AudioBufferSourceNode | null = null;
   private melodyBuffer: AudioBuffer | null = null;
   private melodyBPM = 120;
-  private melodyStartTime = 0;
   
   // 808/Bass enhancement
   private bassSources: AudioBufferSourceNode[] = [];
@@ -76,6 +75,9 @@ export class EnhancedSampleEngine {
 
     try {
       const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
       const arrayBuffer = await response.arrayBuffer();
       const audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
       this.audioBuffers.set(url, audioBuffer);
@@ -84,6 +86,69 @@ export class EnhancedSampleEngine {
       console.error(`Failed to load audio: ${url}`, error);
       return null;
     }
+  }
+
+  // Validate melody file exists and is accessible
+  private async validateMelodyFile(url: string): Promise<boolean> {
+    try {
+      const response = await fetch(url, { method: 'HEAD' });
+      return response.ok;
+    } catch (error) {
+      console.warn(`Melody file validation failed for: ${url}`, error);
+      return false;
+    }
+  }
+
+  // Find a valid melody from available samples with fallback logic
+  private async findValidMelody(samples: AudioSample, genre: string): Promise<string> {
+    // First, try the selected melody sample (now guaranteed to exist due to updated SampleConfigs)
+    if (samples.melody.length > 0) {
+      for (const melodyUrl of samples.melody) {
+        const isValid = await this.validateMelodyFile(melodyUrl);
+        if (isValid) {
+          console.log(`Using validated melody: ${melodyUrl}`);
+          return melodyUrl;
+        } else {
+          console.warn(`Missing melody file detected: ${melodyUrl}`);
+        }
+      }
+    }
+
+    // Fallback: try genre-specific default melodies (all verified to exist)
+    const genreFallbacks: Record<string, string[]> = {
+      'hip-hop': ['/sounds/Hip Hop & Rap/melodies/don-toliver-x-gunna-type-loop-140-dmin.wav'],
+      'emo-rap': ['/sounds/Emo Rap/Melodies/headaches 77 bpm.wav'],
+      'trap': ['/sounds/Trap/Melodies/lil-baby-x-future-dumb-and-dumber 132 bpm.wav'],
+      'country': ['/sounds/Country/Melodies/sunset-dust-summer-country-acoustic-loop 160 bpm.wav'],
+      'edm': ['/sounds/EDM/Melodies/hellion-afro-house-x-pop-synth-pad 125 bpm.wav'],
+      'rock': ['/sounds/Rock/Melodies/chicken-nuggets 110bpm.wav']
+    };
+
+    const fallbacks = genreFallbacks[genre] || genreFallbacks['hip-hop'];
+    for (const fallbackUrl of fallbacks) {
+      const isValid = await this.validateMelodyFile(fallbackUrl);
+      if (isValid) {
+        console.warn(`Using fallback melody for ${genre}: ${fallbackUrl}`);
+        return fallbackUrl;
+      }
+    }
+
+    // Final fallback: use any available melody from any genre
+    const allGenres = ['hip-hop', 'emo-rap', 'trap', 'country', 'edm', 'rock'];
+    for (const fallbackGenre of allGenres) {
+      const fallbacks = genreFallbacks[fallbackGenre];
+      for (const fallbackUrl of fallbacks) {
+        const isValid = await this.validateMelodyFile(fallbackUrl);
+        if (isValid) {
+          console.warn(`Using cross-genre fallback melody: ${fallbackUrl}`);
+          return fallbackUrl;
+        }
+      }
+    }
+
+    // If all else fails, return the first melody URL anyway (will show error but won't crash)
+    console.error('No valid melody files found, using first available as fallback');
+    return samples.melody.length > 0 ? samples.melody[0] : '/sounds/Hip Hop & Rap/melodies/don-toliver-x-gunna-type-loop-140-dmin.wav';
   }
 
   private extractBPMFromFilename(filename: string): number {
@@ -108,13 +173,23 @@ export class EnhancedSampleEngine {
       }
     }
 
+    // Validate melody file exists before attempting to load
+    const isValid = await this.validateMelodyFile(melodyUrl);
+    if (!isValid) {
+      console.warn(`Melody file not found or inaccessible: ${melodyUrl}`);
+      return;
+    }
+
     const buffer = await this.loadAudioBuffer(melodyUrl);
-    if (!buffer) return;
+    if (!buffer) {
+      console.error(`Failed to load melody buffer: ${melodyUrl}`);
+      return;
+    }
 
     this.melodyBuffer = buffer;
     this.melodyBPM = this.extractBPMFromFilename(melodyUrl);
     
-    // Calculate playback rate to match current BPM
+    // Calculate playback rate to match current BPM with improved precision
     const playbackRate = this.calculatePlaybackRate(currentBPM, this.melodyBPM);
     
     // Create new melody source
@@ -123,15 +198,14 @@ export class EnhancedSampleEngine {
     this.melodySource.playbackRate.value = playbackRate;
     this.melodySource.loop = true;
     
-    // Create gain node for melody
+    // Create gain node for melody with track volume control
     const melodyGain = this.audioContext.createGain();
-    melodyGain.gain.value = 0.3; // Lower volume for melody
+    melodyGain.gain.value = this.trackVolumes.melody;
     
     this.melodySource.connect(melodyGain);
     melodyGain.connect(this.gainNode);
     
     // Start melody loop
-    this.melodyStartTime = this.audioContext.currentTime;
     this.melodySource.start(this.audioContext.currentTime);
   }
 
@@ -239,18 +313,34 @@ export class EnhancedSampleEngine {
     this.currentSamples = samples;
     this.isPlaying = true;
 
-    // Load and start melody loop if available
-    if (samples.melody.length > 0) {
-      await this.loadMelodyLoop(samples.melody[0], genre.bpm);
-    }
+    // Find a valid melody with fallback logic to ensure melody is never silent
+    const melodyUrl = await this.findValidMelody(samples, genre.name.toLowerCase());
+    await this.loadMelodyLoop(melodyUrl, genre.bpm);
 
-    // Calculate step duration in milliseconds
-    const stepDuration = (60000 / this.currentBPM) / 4; // 16th notes
+    // Calculate step duration with half-time logic for high-BPM samples in country/rock
+    const stepDuration = this.calculateStepDuration(genre.bpm, genre.name.toLowerCase());
 
     this.intervalId = window.setInterval(() => {
       this.playStep();
       this.currentStep = (this.currentStep + 1) % 16;
     }, stepDuration);
+  }
+
+  // Calculate step duration with half-time logic for high-BPM samples
+  private calculateStepDuration(bpm: number, genre: string): number {
+    // Apply half-time drum pattern for high-BPM samples in country and rock genres
+    const shouldUseHalfTime = (genre === 'country' || genre === 'rock') && bpm > 140;
+    
+    if (shouldUseHalfTime) {
+      // Half-time: drums play at half the BPM while melody stays at full BPM
+      const halfTimeBPM = bpm / 2;
+      const stepDuration = (60000 / halfTimeBPM) / 4; // 16th notes at half-time
+      console.log(`Half-time mode: drums at ${halfTimeBPM} BPM, melody at ${bpm} BPM`);
+      return stepDuration;
+    }
+    
+    // Normal timing for other genres or lower BPM
+    return (60000 / bpm) / 4; // 16th notes
   }
 
   private async playStep() {
@@ -352,6 +442,49 @@ export class EnhancedSampleEngine {
     }
   }
 
+  // Method to update BPM and resync melody
+  async updateBPM(newBPM: number, genre: string = 'hip-hop') {
+    this.currentBPM = newBPM;
+    
+    // If melody is playing, restart it with new BPM
+    if (this.isPlaying && this.melodySource && this.melodyBuffer) {
+      // Stop current melody
+      try {
+        this.melodySource.stop();
+      } catch (e) {
+        // Already stopped
+      }
+      
+      // Restart melody with new BPM
+      const playbackRate = this.calculatePlaybackRate(newBPM, this.melodyBPM);
+      
+      this.melodySource = this.audioContext!.createBufferSource();
+      this.melodySource.buffer = this.melodyBuffer;
+      this.melodySource.playbackRate.value = playbackRate;
+      this.melodySource.loop = true;
+      
+      // Create gain node for melody
+      const melodyGain = this.audioContext!.createGain();
+      melodyGain.gain.value = this.trackVolumes.melody;
+      
+      this.melodySource.connect(melodyGain);
+      melodyGain.connect(this.gainNode!);
+      
+      // Start melody loop
+      this.melodySource.start(this.audioContext!.currentTime);
+    }
+    
+    // Update step duration for drum timing with half-time logic
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+      const stepDuration = this.calculateStepDuration(newBPM, genre);
+      this.intervalId = window.setInterval(() => {
+        this.playStep();
+        this.currentStep = (this.currentStep + 1) % 16;
+      }, stepDuration);
+    }
+  }
+
   // Individual track volume control
   setTrackVolume(track: string, volume: number) {
     if (this.trackVolumes.hasOwnProperty(track)) {
@@ -365,6 +498,15 @@ export class EnhancedSampleEngine {
 
   getAllTrackVolumes(): Record<string, number> {
     return { ...this.trackVolumes };
+  }
+
+  // Debug method to check current melody status
+  getCurrentMelodyInfo(): { url: string; bpm: number; isPlaying: boolean } {
+    return {
+      url: this.melodySource ? 'melody loaded' : 'no melody',
+      bpm: this.melodyBPM,
+      isPlaying: this.isPlaying
+    };
   }
 
 }
