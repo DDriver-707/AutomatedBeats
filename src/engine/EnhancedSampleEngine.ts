@@ -1,6 +1,7 @@
 // Enhanced Sample Engine with melody loop support and BPM syncing
 import type { BeatPattern, GenreConfig } from '../types/BeatTypes';
 import type { AudioSample } from './SampleEngine';
+import { ProgressiveLoadingEngine } from './ProgressiveLoadingEngine';
 
 export class EnhancedSampleEngine {
   private audioContext: AudioContext | null = null;
@@ -13,6 +14,7 @@ export class EnhancedSampleEngine {
   private audioBuffers: Map<string, AudioBuffer> = new Map();
   private currentSamples: AudioSample | null = null;
   private currentSources: Map<string, AudioBufferSourceNode> = new Map();
+  private progressiveLoader: ProgressiveLoadingEngine | null = null;
   
   // Melody loop management
   private melodySource: AudioBufferSourceNode | null = null;
@@ -37,6 +39,19 @@ export class EnhancedSampleEngine {
 
   constructor() {
     this.initializeAudioContext();
+  }
+
+  // Initialize progressive loading engine
+  initializeProgressiveLoader(): ProgressiveLoadingEngine | null {
+    if (this.audioContext && !this.progressiveLoader) {
+      this.progressiveLoader = new ProgressiveLoadingEngine(this.audioContext);
+    }
+    return this.progressiveLoader;
+  }
+
+  // Get progressive loader instance
+  getProgressiveLoader(): ProgressiveLoadingEngine | null {
+    return this.progressiveLoader;
   }
 
   private async initializeAudioContext() {
@@ -68,7 +83,15 @@ export class EnhancedSampleEngine {
   private async loadAudioBuffer(url: string): Promise<AudioBuffer | null> {
     if (!this.audioContext) return null;
 
-    // Check if already loaded
+    // Use progressive loader if available
+    if (this.progressiveLoader) {
+      const buffer = this.progressiveLoader.getAudioBuffer(url);
+      if (buffer) {
+        return buffer;
+      }
+    }
+
+    // Fallback to direct loading
     if (this.audioBuffers.has(url)) {
       return this.audioBuffers.get(url)!;
     }
@@ -507,6 +530,64 @@ export class EnhancedSampleEngine {
       bpm: this.melodyBPM,
       isPlaying: this.isPlaying
     };
+  }
+
+  // Load samples for a specific genre
+  async loadGenreSamples(genre: string): Promise<void> {
+    if (!this.progressiveLoader) {
+      this.initializeProgressiveLoader();
+    }
+    
+    if (this.progressiveLoader) {
+      await this.progressiveLoader.loadGenreSamples(genre);
+    }
+  }
+
+  // Load current genre and preload next genre
+  async loadGenreWithPreload(currentGenre: string, nextGenre?: string): Promise<void> {
+    if (!this.progressiveLoader) {
+      this.initializeProgressiveLoader();
+    }
+    
+    if (this.progressiveLoader) {
+      await this.progressiveLoader.loadGenreWithPreload(currentGenre, nextGenre);
+    }
+  }
+
+  // Clean up unused samples
+  cleanupUnusedSamples(currentGenre: string): void {
+    if (this.progressiveLoader) {
+      this.progressiveLoader.cleanupUnusedSamples(currentGenre);
+    }
+    
+    // Also clean up local cache
+    const currentSamples = this.currentSamples;
+    if (currentSamples) {
+      const currentUrls = this.getAllSampleUrls(currentSamples);
+      const urlsToKeep = new Set(currentUrls);
+      
+      for (const url of this.audioBuffers.keys()) {
+        if (!urlsToKeep.has(url)) {
+          this.audioBuffers.delete(url);
+        }
+      }
+    }
+  }
+
+  // Get all sample URLs from current samples
+  private getAllSampleUrls(samples: AudioSample): string[] {
+    const urls: string[] = [];
+    Object.values(samples).forEach((sampleArray: any) => {
+      if (Array.isArray(sampleArray)) {
+        urls.push(...sampleArray);
+      }
+    });
+    return urls;
+  }
+
+  // Check if genre is loaded
+  isGenreLoaded(genre: string): boolean {
+    return this.progressiveLoader ? this.progressiveLoader.isGenreLoaded(genre) : false;
   }
 
 }

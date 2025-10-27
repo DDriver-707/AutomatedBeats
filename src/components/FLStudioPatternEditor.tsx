@@ -1,4 +1,5 @@
 import type { BeatPattern } from '../types/BeatTypes';
+import type { AudioSample } from '../engine/SampleEngine';
 
 interface FLStudioPatternEditorProps {
   pattern: BeatPattern;
@@ -9,7 +10,7 @@ interface FLStudioPatternEditorProps {
   onVolumeChange?: (track: string, volume: number) => void;
   onRandomizeSample?: (instrument: string) => void;
   onRandomizePattern?: (instrument: string) => void;
-  availableSamples?: Record<string, string[]>;
+  availableSamples?: AudioSample;
 }
 
 export default function FLStudioPatternEditor({ 
@@ -21,7 +22,15 @@ export default function FLStudioPatternEditor({
   onVolumeChange,
   onRandomizeSample,
   onRandomizePattern,
-  availableSamples = {}
+  availableSamples = {
+    kick: [],
+    snare: [],
+    clap: [],
+    hihat: [],
+    openHat: [],
+    bass: [],
+    melody: []
+  }
 }: FLStudioPatternEditorProps) {
   const steps = Array.from({ length: 16 }, (_, i) => i);
 
@@ -57,7 +66,8 @@ export default function FLStudioPatternEditor({
 
   // Check if instrument has available samples
   const hasSamples = (sampleKey: string) => {
-    return availableSamples[sampleKey] && availableSamples[sampleKey].length > 0;
+    const key = sampleKey as keyof AudioSample;
+    return availableSamples[key] && availableSamples[key].length > 0;
   };
 
   return (

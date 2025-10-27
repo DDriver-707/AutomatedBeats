@@ -73,12 +73,12 @@ export const swingPatterns = {
   heavy: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0]
 };
 
-// Genre-specific BPM ranges
+// Genre-specific BPM defaults (no limits)
 export const genreBPMs = {
-  hiphop: { min: 85, max: 95, default: 90 },
-  emorap: { min: 75, max: 85, default: 80 },
-  country: { min: 100, max: 120, default: 110 },
-  edm: { min: 125, max: 130, default: 128 },
-  rock: { min: 110, max: 130, default: 120 },
-  trap: { min: 140, max: 150, default: 145 }
+  hiphop: { default: 90 },
+  emorap: { default: 80 },
+  country: { default: 110 },
+  edm: { default: 128 },
+  rock: { default: 120 },
+  trap: { default: 145 }
 };

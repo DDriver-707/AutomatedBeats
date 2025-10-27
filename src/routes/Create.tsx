@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Play, Pause, Square, Volume2, Shuffle, Music, RotateCcw, Download, Disc3, Grid3x3 } from 'lucide-react';
+import { Play, Pause, Square, Volume2, Music, RotateCcw, Download, Disc3, Grid3x3, Loader2 } from 'lucide-react';
 import { EnhancedSampleEngine } from '../engine/EnhancedSampleEngine';
 import { SAMPLE_CONFIGS } from '../engine/SampleConfigs';
 import { GENRE_CONFIGS } from '../engine/GenreConfigs';
 import { ExportEngine } from '../engine/ExportEngine';
 import { RandomBeatGenerator } from '../engine/RandomBeatGenerator';
+import type { LoadingProgress } from '../engine/ProgressiveLoadingEngine';
 import FLStudioPatternEditor from '../components/FLStudioPatternEditor';
 import AudioVisualizer from '../components/AudioVisualizer';
 
@@ -17,6 +18,17 @@ export default function Create() {
   const [currentPattern, setCurrentPattern] = useState(GENRE_CONFIGS['hip-hop'].pattern);
   const [isExporting, setIsExporting] = useState(false);
   const [trackVolumes, setTrackVolumes] = useState<Record<string, number>>({});
+  
+  // Loading states
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingProgress, setLoadingProgress] = useState<LoadingProgress>({
+    current: 0,
+    total: 0,
+    percentage: 0,
+    currentGenre: '',
+    status: 'idle'
+  });
+  const [loadingError, setLoadingError] = useState<string | null>(null);
   
   // Individual sample selection indices for each instrument
   const [sampleIndices, setSampleIndices] = useState<Record<string, number>>({
@@ -36,6 +48,48 @@ export default function Create() {
   useEffect(() => {
     sampleEngineRef.current = new EnhancedSampleEngine();
     exportEngineRef.current = new ExportEngine();
+    
+    // Initialize progressive loading
+    const initializeLoading = async () => {
+      if (sampleEngineRef.current) {
+        // Wait for audio context to be ready
+        let attempts = 0;
+        while (attempts < 10) {
+          const loader = sampleEngineRef.current.initializeProgressiveLoader();
+          if (loader) {
+            break;
+          }
+          await new Promise(resolve => setTimeout(resolve, 100));
+          attempts++;
+        }
+        
+        const loader = sampleEngineRef.current.getProgressiveLoader();
+        if (loader) {
+          // Subscribe to loading progress
+          const unsubscribe = loader.onProgress((progress) => {
+            setLoadingProgress(progress);
+            setIsLoading(progress.status === 'loading');
+            if (progress.status === 'error') {
+              setLoadingError('Failed to load some audio samples');
+            } else if (progress.status === 'completed') {
+              setLoadingError(null);
+            }
+          });
+
+          // Load initial genre samples
+          try {
+            await sampleEngineRef.current.loadGenreSamples('hip-hop');
+          } catch (error) {
+            console.error('Failed to load initial samples:', error);
+            setLoadingError('Failed to load initial audio samples');
+          }
+
+          return unsubscribe;
+        }
+      }
+    };
+
+    initializeLoading();
     
     return () => {
       if (sampleEngineRef.current) {
@@ -90,14 +144,59 @@ export default function Create() {
     };
   }, [isPlaying]);
 
+  // Handle genre change with progressive loading
+  const handleGenreChange = async (newGenre: string) => {
+    if (newGenre === selectedGenre) return;
+    
+    setSelectedGenre(newGenre);
+    loadGenrePattern(newGenre);
+    
+    // Reset sample indices when changing genre
+    setSampleIndices({
+      kick: 0,
+      snare: 0,
+      clap: 0,
+      hihat: 0,
+      openHat: 0,
+      bass: 0,
+      melody: 0
+    });
+
+    // Load samples for new genre with progressive loading
+    if (sampleEngineRef.current) {
+      try {
+        // Get next genre for preloading
+        const genres = Object.keys(GENRE_CONFIGS);
+        const currentIndex = genres.indexOf(newGenre);
+        const nextGenre = currentIndex < genres.length - 1 ? genres[currentIndex + 1] : undefined;
+        
+        await sampleEngineRef.current.loadGenreWithPreload(newGenre, nextGenre);
+        
+        // Clean up unused samples from previous genre
+        sampleEngineRef.current.cleanupUnusedSamples(newGenre);
+      } catch (error) {
+        console.error('Failed to load genre samples:', error);
+        setLoadingError(`Failed to load samples for ${newGenre}`);
+      }
+    }
+  };
+
   const handlePlayPause = async () => {
-    if (!sampleEngineRef.current) return;
+    if (!sampleEngineRef.current || isLoading) return;
 
     if (isPlaying) {
       sampleEngineRef.current.stopBeat();
       setIsPlaying(false);
       setCurrentStep(0);
     } else {
+      // Check if current genre samples are loaded
+      if (!sampleEngineRef.current.isGenreLoaded(selectedGenre)) {
+        setLoadingError(`Samples for ${selectedGenre} are still loading. Please wait...`);
+        // Auto-clear error after 3 seconds
+        setTimeout(() => setLoadingError(null), 3000);
+        return;
+      }
+
       const config = GENRE_CONFIGS[selectedGenre];
       const baseSamples = SAMPLE_CONFIGS[selectedGenre] || SAMPLE_CONFIGS['hip-hop'];
       
@@ -412,6 +511,47 @@ export default function Create() {
           </p>
         </div>
 
+        {/* Loading Indicator */}
+        {isLoading && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="mb-6 p-4 bg-white/5 rounded-xl border border-white/10"
+          >
+            <div className="flex items-center gap-3 mb-3">
+              <Loader2 className="w-5 h-5 text-purple-400 animate-spin" />
+              <span className="text-white font-medium">
+                Loading {loadingProgress.currentGenre} samples...
+              </span>
+            </div>
+            <div className="w-full bg-white/10 rounded-full h-2">
+              <div 
+                className="bg-gradient-to-r from-purple-400 to-pink-400 h-2 rounded-full transition-all duration-300"
+                style={{ width: `${loadingProgress.percentage}%` }}
+              />
+            </div>
+            <div className="text-white/60 text-sm mt-2">
+              {loadingProgress.current} / {loadingProgress.total} samples loaded
+            </div>
+          </motion.div>
+        )}
+
+        {/* Error Message */}
+        {loadingError && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="mb-6 p-4 bg-red-500/10 rounded-xl border border-red-500/20"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-2 h-2 bg-red-400 rounded-full" />
+              <span className="text-red-300 font-medium">{loadingError}</span>
+            </div>
+          </motion.div>
+        )}
+
         {/* Genre Selection */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -425,12 +565,7 @@ export default function Create() {
               <button
                 key={key}
                 onClick={() => {
-                  setSelectedGenre(key);
-                  loadGenrePattern(key);
-                  // Reset sample indices when changing genre
-                  setSampleIndices({
-                    kick: 0, snare: 0, clap: 0, hihat: 0, openHat: 0, bass: 0, melody: 0
-                  });
+                  handleGenreChange(key);
                   if (isPlaying) handleStop();
                 }}
                 className={`
@@ -470,15 +605,20 @@ export default function Create() {
             <div className="flex items-center gap-4">
               <button
                 onClick={handlePlayPause}
+                disabled={isLoading}
                 className={`
                   w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300
-                  ${isPlaying
+                  ${isLoading
+                    ? 'bg-gray-500 cursor-not-allowed opacity-50'
+                    : isPlaying
                     ? 'bg-red-500 hover:bg-red-600 shadow-lg shadow-red-500/30'
                     : 'bg-green-500 hover:bg-green-600 shadow-lg shadow-green-500/30'
                   }
                 `}
               >
-                {isPlaying ? (
+                {isLoading ? (
+                  <Loader2 className="w-8 h-8 animate-spin" />
+                ) : isPlaying ? (
                   <Pause className="w-8 h-8" />
                 ) : (
                   <Play className="w-8 h-8 ml-1" />

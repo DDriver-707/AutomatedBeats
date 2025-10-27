@@ -4,8 +4,6 @@ import type { GenreConfig } from '../types/BeatTypes';
 export class ExportEngine {
   private audioContext: AudioContext;
   private offlineContext: OfflineAudioContext | null = null;
-  private isRecording = false;
-  private recordedChunks: Float32Array[] = [];
 
   constructor() {
     this.audioContext = new AudioContext();
@@ -155,7 +153,6 @@ export class ExportEngine {
   private async convertToMP3(audioBuffer: AudioBuffer): Promise<Blob> {
     const sampleRate = audioBuffer.sampleRate;
     const channels = audioBuffer.numberOfChannels;
-    const samples = audioBuffer.length;
 
     // Get the audio data
     const leftChannel = audioBuffer.getChannelData(0);
@@ -169,7 +166,7 @@ export class ExportEngine {
     const stereoPCM = this.interleaveStereo(leftPCM, rightPCM);
 
     // Create MP3 encoder
-    const mp3encoder = new lamejs.Mp3Encoder(channels, sampleRate, 128); // 128 kbps
+    const mp3encoder = new (lamejs as any).Mp3Encoder(channels, sampleRate, 128); // 128 kbps
     const mp3Data: Int8Array[] = [];
 
     // Encode in chunks

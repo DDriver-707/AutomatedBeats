@@ -1,8 +1,8 @@
 // Enhanced Random Beat Generator with proper timing and variety
 import type { GenreConfig, BeatPattern } from '../types/BeatTypes';
 import type { AudioSample } from './SampleEngine';
-import { patterns, melodyPatterns, genreBPMs } from './patterns';
 import { GENRE_CONFIGS } from './GenreConfigs';
+import { genreBPMs } from './patterns';
 import { SAMPLE_CONFIGS } from './SampleConfigs';
 
 export class RandomBeatGenerator {
@@ -17,10 +17,10 @@ export class RandomBeatGenerator {
     // Get base config
     const baseConfig = { ...GENRE_CONFIGS[randomGenre] };
     
-    // Randomize BPM within genre range
+    // Use default BPM for the genre
     const genreKey = randomGenre as keyof typeof genreBPMs;
-    const bpmRange = genreBPMs[genreKey];
-    baseConfig.bpm = bpmRange.min + Math.floor(Math.random() * (bpmRange.max - bpmRange.min + 1));
+    const bpmConfig = genreBPMs[genreKey];
+    baseConfig.bpm = bpmConfig.default;
     
     // Create random pattern
     const randomPattern = this.generateRandomPattern();
@@ -328,6 +328,7 @@ export class RandomBeatGenerator {
     const chaoticPattern: BeatPattern = {
       kick: new Array(16).fill(0),
       snare: new Array(16).fill(0),
+      clap: new Array(16).fill(0),
       hihat: new Array(16).fill(0),
       openHat: new Array(16).fill(0),
       bass: new Array(16).fill(0),
