@@ -19,12 +19,12 @@ export const patterns = {
   },
 
   countryPattern: {
-    kick:      [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0], // No kick
-    snare:     [0,0,0,0, 0,0,0,1, 0,0,0,0, 0,0,0,0], // Snare on 11 (switched from clap)
-    clap:      [0,0,0,0, 1,0,0,0, 0,0,0,0, 0,0,1,0], // Clap on 5 and 13 (switched from snare)
+    kick:      [1,0,0,0, 0,0,0,0, 0,0,1,0, 0,0,0,0], // No kick
+    snare:     [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0], // Snare on 11 (switched from clap)
+    clap:      [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0], // Clap on 5 and 13 (switched from snare)
     hihat:     [1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0], // Steady 8th notes
-    openhihat: [0,0,0,0, 0,0,0,0, 0,0,0,0, 1,0,0,0], // No open hat
-    bass:      [1,0,0,0, 0,0,0,0, 0,0,1,0, 0,0,0,0]  // Bass on 4 and 12
+    openhihat: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0], // No open hat
+    bass:      [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0]  // Bass on 4 and 12
   },
 
   edmPattern: {
@@ -37,19 +37,19 @@ export const patterns = {
   },
 
   rockPattern: {
-    kick:      [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0], // No kick
-    snare:     [0,0,0,0, 0,0,1,0, 0,1,0,0, 0,0,0,0], // No snare (switched from clap)
-    clap:      [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0], // Clap on 5 and 13 (switched from snare)
-    hihat:     [1,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,1],
-    openhihat: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
-    bass:      [1,0,0,0, 1,0,0,0, 1,0,0,0, 0,0,0,0]
+    kick:      [1,0,0,0, 0,0,0,0, 0,0,1,0, 0,0,1,0], // No kick
+    snare:     [0,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0], // No snare (switched from clap)
+    clap:      [0,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0], // Clap on 5 and 13 (switched from snare)
+    hihat:     [1,0,0,0, 1,0,0,0, 1,0,0,0, 1,0,0,0],
+    openhihat: [0,0,0,0, 0,0,1,0, 0,0,0,0, 0,0,0,0],
+    bass:      [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0]
   },
 
   trapPattern: {
     kick:      [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0], // No kick
     snare:     [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0], // No snare (switched from clap)
     clap:      [0,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0], // Clap on 5 and 13 (switched from snare)
-    hihat:     [1,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,1], // Hi-hat rolls with gaps
+    hihat:     [1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,1], // Hi-hat rolls with gaps
     openhihat: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0], // Open hat accents
     bass:      [1,0,0,0, 0,0,1,0, 0,0,0,0, 0,0,0,0]  // Bass pattern
   }
