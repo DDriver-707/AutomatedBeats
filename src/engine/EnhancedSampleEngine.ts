@@ -28,7 +28,7 @@ export class EnhancedSampleEngine {
   
   // Individual track volumes
   private trackVolumes: Record<string, number> = {
-    kick: 0.8,
+    kick: 0.5,
     snare: 0.7,
     clap: 0.6,
     hihat: 0.4,

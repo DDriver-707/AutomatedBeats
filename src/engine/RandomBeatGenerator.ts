@@ -2,7 +2,7 @@
 import type { GenreConfig, BeatPattern } from '../types/BeatTypes';
 import type { AudioSample } from './SampleEngine';
 import { GENRE_CONFIGS } from './GenreConfigs';
-import { genreBPMs } from './patterns';
+import { genreBPMs, getRandomBeatPattern } from './patterns';
 import { SAMPLE_CONFIGS } from './SampleConfigs';
 
 export class RandomBeatGenerator {
@@ -23,7 +23,7 @@ export class RandomBeatGenerator {
     baseConfig.bpm = bpmConfig.default;
     
     // Create random pattern
-    const randomPattern = this.generateRandomPattern();
+    const randomPattern = this.generateRandomPattern(randomGenre);
     baseConfig.pattern = randomPattern;
     
     baseConfig.name = `Random ${baseConfig.name}`;
@@ -34,221 +34,25 @@ export class RandomBeatGenerator {
   /**
    * Generate a random pattern for a specific genre (only instruments with available samples)
    */
-  static generateRandomPatternForGenre(samples: AudioSample): BeatPattern {
-    const pattern: BeatPattern = {
-      kick: new Array(16).fill(0),
-      snare: new Array(16).fill(0),
-      clap: new Array(16).fill(0),
-      hihat: new Array(16).fill(0),
-      openHat: new Array(16).fill(0),
-      bass: new Array(16).fill(0),
-      melody: new Array(16).fill(0)
+  static generateRandomPatternForGenre(genreKey: string, samples: AudioSample): BeatPattern {
+    const genrePattern = getRandomBeatPattern(genreKey);
+
+    return {
+      kick: samples.kick && samples.kick.length > 0 ? [...genrePattern.kick] : new Array(16).fill(0),
+      snare: samples.snare && samples.snare.length > 0 ? [...genrePattern.snare] : new Array(16).fill(0),
+      clap: samples.clap && samples.clap.length > 0 ? [...genrePattern.clap] : new Array(16).fill(0),
+      hihat: samples.hihat && samples.hihat.length > 0 ? [...genrePattern.hihat] : new Array(16).fill(0),
+      openHat: samples.openHat && samples.openHat.length > 0 ? [...genrePattern.openHat] : new Array(16).fill(0),
+      bass: samples.bass && samples.bass.length > 0 ? [...genrePattern.bass] : new Array(16).fill(0),
+      melody: samples.melody && samples.melody.length > 0 ? [...genrePattern.melody] : new Array(16).fill(0)
     };
-
-    // Only generate patterns for instruments with available samples
-    
-    // Generate kick pattern (only if samples available)
-    if (samples.kick && samples.kick.length > 0) {
-      const kickPositions = [0, 4, 8, 12]; // Strong beats
-      kickPositions.forEach(pos => {
-        if (Math.random() > 0.3) pattern.kick[pos] = 1;
-      });
-      // Add some off-beat kicks
-      for (let i = 1; i < 16; i += 2) {
-        if (Math.random() > 0.8) pattern.kick[i] = 1;
-      }
-    }
-
-    // Generate snare pattern (only if samples available)
-    if (samples.snare && samples.snare.length > 0) {
-      const snarePositions = [4, 12];
-      snarePositions.forEach(pos => {
-        if (Math.random() > 0.2) pattern.snare[pos] = 1;
-      });
-      // Ghost snares
-      for (let i = 0; i < 16; i++) {
-        if (![4, 12].includes(i) && Math.random() > 0.7) pattern.snare[i] = 1;
-      }
-    }
-
-    // Generate clap pattern (only if samples available)
-    if (samples.clap && samples.clap.length > 0) {
-      const clapPositions = [4, 12];
-      clapPositions.forEach(pos => {
-        if (Math.random() > 0.5) pattern.clap[pos] = 1;
-      });
-    }
-
-    // Generate hi-hat pattern (only if samples available)
-    if (samples.hihat && samples.hihat.length > 0) {
-      const hatDensity = Math.random();
-      if (hatDensity > 0.7) {
-        for (let i = 0; i < 16; i++) {
-          if (Math.random() > 0.3) pattern.hihat[i] = 1;
-        }
-      } else if (hatDensity > 0.4) {
-        for (let i = 0; i < 16; i += 2) {
-          if (Math.random() > 0.3) pattern.hihat[i] = 1;
-        }
-      } else {
-        for (let i = 0; i < 16; i += 4) {
-          if (Math.random() > 0.4) pattern.hihat[i] = 1;
-        }
-      }
-    }
-
-    // Generate open hat pattern (only if samples available)
-    if (samples.openHat && samples.openHat.length > 0) {
-      [7, 15].forEach(pos => {
-        if (Math.random() > 0.5) pattern.openHat[pos] = 1;
-      });
-    }
-
-    // Generate bass pattern (only if samples available)
-    if (samples.bass && samples.bass.length > 0) {
-      for (let i = 0; i < 16; i++) {
-        if (pattern.kick[i]) {
-          if (Math.random() > 0.2) pattern.bass[i] = 1 + Math.floor(Math.random() * 3);
-        } else {
-          if (Math.random() > 0.8) pattern.bass[i] = 1 + Math.floor(Math.random() * 3);
-        }
-      }
-    }
-
-    // Generate melody pattern (only if samples available)
-    if (samples.melody && samples.melody.length > 0) {
-      const melodyDensity = Math.random();
-      if (melodyDensity > 0.6) {
-        for (let i = 0; i < 16; i += 2) {
-          if (Math.random() > 0.4) pattern.melody[i] = 1 + Math.floor(Math.random() * 4);
-        }
-      } else {
-        for (let i = 0; i < 16; i += 4) {
-          if (Math.random() > 0.6) pattern.melody[i] = 1 + Math.floor(Math.random() * 4);
-        }
-      }
-    }
-
-    return pattern;
   }
 
   /**
    * Generate a random pattern with proper timing
    */
-  static generateRandomPattern(): BeatPattern {
-    const pattern: BeatPattern = {
-      kick: new Array(16).fill(0),
-      snare: new Array(16).fill(0),
-      clap: new Array(16).fill(0),
-      hihat: new Array(16).fill(0),
-      openHat: new Array(16).fill(0),
-      bass: new Array(16).fill(0),
-      melody: new Array(16).fill(0)
-    };
-
-    // Generate kick pattern (usually on strong beats)
-    const kickPositions = [0, 4, 8, 12]; // Strong beats
-    kickPositions.forEach(pos => {
-      if (Math.random() > 0.3) { // 70% chance on strong beats
-        pattern.kick[pos] = 1;
-      }
-    });
-
-    // Add some off-beat kicks (20% chance)
-    for (let i = 1; i < 16; i += 2) {
-      if (Math.random() > 0.8) {
-        pattern.kick[i] = 1;
-      }
-    }
-
-    // Generate snare pattern (usually on 2 and 4)
-    const snarePositions = [4, 12]; // 2 and 4
-    snarePositions.forEach(pos => {
-      if (Math.random() > 0.2) { // 80% chance on 2 and 4
-        pattern.snare[pos] = 1;
-      }
-    });
-
-    // Add ghost snares (30% chance on other positions)
-    for (let i = 0; i < 16; i++) {
-      if (!snarePositions.includes(i) && Math.random() > 0.7) {
-        pattern.snare[i] = 1;
-      }
-    }
-
-    // Generate clap pattern (usually on 2 and 4, similar to snare but more sparse)
-    const clapPositions = [4, 12]; // 2 and 4
-    clapPositions.forEach(pos => {
-      if (Math.random() > 0.5) { // 50% chance on 2 and 4
-        pattern.clap[pos] = 1;
-      }
-    });
-
-    // Generate hi-hat pattern
-    const hatDensity = Math.random();
-    if (hatDensity > 0.7) {
-      // Dense hats (16th notes)
-      for (let i = 0; i < 16; i++) {
-        if (Math.random() > 0.3) pattern.hihat[i] = 1;
-      }
-    } else if (hatDensity > 0.4) {
-      // Medium hats (8th notes with some variation)
-      for (let i = 0; i < 16; i += 2) {
-        if (Math.random() > 0.3) pattern.hihat[i] = 1;
-      }
-      // Add some off-beat hats
-      for (let i = 1; i < 16; i += 2) {
-        if (Math.random() > 0.6) pattern.hihat[i] = 1;
-      }
-    } else {
-      // Sparse hats
-      for (let i = 0; i < 16; i += 4) {
-        if (Math.random() > 0.4) pattern.hihat[i] = 1;
-      }
-    }
-
-    // Generate open hat pattern (sparse, usually on beat 4)
-    const openHatPositions = [7, 15]; // Beat 4 and end
-    openHatPositions.forEach(pos => {
-      if (Math.random() > 0.5) {
-        pattern.openHat[pos] = 1;
-      }
-    });
-
-    // Generate bass pattern (follows kick with some variation)
-    for (let i = 0; i < 16; i++) {
-      if (pattern.kick[i]) {
-        // Bass on kick (80% chance)
-        if (Math.random() > 0.2) {
-          pattern.bass[i] = 1 + Math.floor(Math.random() * 3); // Notes 1-3
-        }
-      } else {
-        // Off-beat bass (20% chance)
-        if (Math.random() > 0.8) {
-          pattern.bass[i] = 1 + Math.floor(Math.random() * 3);
-        }
-      }
-    }
-
-    // Generate melody pattern (sparse, musical)
-    const melodyDensity = Math.random();
-    if (melodyDensity > 0.6) {
-      // More melodic
-      for (let i = 0; i < 16; i += 2) {
-        if (Math.random() > 0.4) {
-          pattern.melody[i] = 1 + Math.floor(Math.random() * 4); // Notes 1-4
-        }
-      }
-    } else {
-      // Sparse melody
-      for (let i = 0; i < 16; i += 4) {
-        if (Math.random() > 0.6) {
-          pattern.melody[i] = 1 + Math.floor(Math.random() * 4);
-        }
-      }
-    }
-
-    return pattern;
+  static generateRandomPattern(genreKey: string): BeatPattern {
+    return getRandomBeatPattern(genreKey);
   }
 
   /**

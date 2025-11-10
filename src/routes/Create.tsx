@@ -7,6 +7,8 @@ import { GENRE_CONFIGS } from '../engine/GenreConfigs';
 import { ExportEngine } from '../engine/ExportEngine';
 import { RandomBeatGenerator } from '../engine/RandomBeatGenerator';
 import type { LoadingProgress } from '../engine/ProgressiveLoadingEngine';
+import { getDefaultBeatPattern, getRandomInstrumentPattern } from '../engine/patterns';
+import type { BeatPattern } from '../types/BeatTypes';
 import FLStudioPatternEditor from '../components/FLStudioPatternEditor';
 import AudioVisualizer from '../components/AudioVisualizer';
 
@@ -15,7 +17,7 @@ export default function Create() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.5);
   const [currentStep, setCurrentStep] = useState(0);
-  const [currentPattern, setCurrentPattern] = useState(GENRE_CONFIGS['hip-hop'].pattern);
+  const [currentPattern, setCurrentPattern] = useState<BeatPattern>(() => getDefaultBeatPattern('hip-hop'));
   const [isExporting, setIsExporting] = useState(false);
   const [trackVolumes, setTrackVolumes] = useState<Record<string, number>>({});
   
@@ -244,7 +246,7 @@ export default function Create() {
   };
 
   const loadGenrePattern = (genre: string) => {
-    setCurrentPattern(GENRE_CONFIGS[genre].pattern);
+    setCurrentPattern(getDefaultBeatPattern(genre));
   };
 
   // Randomize individual instrument sample only
@@ -292,83 +294,22 @@ export default function Create() {
   // Randomize individual instrument pattern only
   const randomizeInstrumentPattern = (instrument: string) => {
     const baseSamples = SAMPLE_CONFIGS[selectedGenre] || SAMPLE_CONFIGS['hip-hop'];
-    const instrumentKey = instrument as keyof typeof baseSamples;
-    const availableSamples = baseSamples[instrumentKey];
-    
-    // Only randomize if samples are available
+    const instrumentKey = instrument as keyof BeatPattern;
+    const availableSamples = baseSamples[instrumentKey as keyof typeof baseSamples];
+
     if (!availableSamples || availableSamples.length === 0) {
-      return; // Don't randomize if no samples available
+      return;
     }
-    
-    // Randomize pattern for this instrument
-    const patternKey = instrument === 'melody' ? 'melody' : instrument as keyof typeof currentPattern;
-    if (patternKey && currentPattern[patternKey]) {
-      const newPattern = { ...currentPattern };
-      const randomSteps = new Array(16).fill(0);
-      
-      // Different randomization strategies based on instrument type
-      if (patternKey === 'kick') {
-        // Kicks on strong beats with some variation
-        [0, 4, 8, 12].forEach(pos => {
-          if (Math.random() > 0.2) randomSteps[pos] = 1;
-        });
-        // Add some off-beat kicks
-        for (let i = 1; i < 16; i += 2) {
-          if (Math.random() > 0.8) randomSteps[i] = 1;
-        }
-      } else if (patternKey === 'snare') {
-        // Snares typically on 2 and 4
-        [4, 12].forEach(pos => {
-          if (Math.random() > 0.15) randomSteps[pos] = 1;
-        });
-        // Ghost snares
-        for (let i = 0; i < 16; i++) {
-          if (![4, 12].includes(i) && Math.random() > 0.8) randomSteps[i] = 1;
-        }
-      } else if (patternKey === 'hihat') {
-        // Dense hi-hat patterns
-        const density = Math.random();
-        if (density > 0.7) {
-          // 16th notes
-          for (let i = 0; i < 16; i++) {
-            if (Math.random() > 0.2) randomSteps[i] = 1;
-          }
-        } else if (density > 0.4) {
-          // 8th notes with variation
-          for (let i = 0; i < 16; i += 2) {
-            if (Math.random() > 0.25) randomSteps[i] = 1;
-          }
-        } else {
-          // Quarter notes
-          for (let i = 0; i < 16; i += 4) {
-            if (Math.random() > 0.3) randomSteps[i] = 1;
-          }
-        }
-      } else if (patternKey === 'openHat') {
-        // Sparse open hats
-        [7, 15].forEach(pos => {
-          if (Math.random() > 0.5) randomSteps[pos] = 1;
-        });
-      } else if (patternKey === 'clap') {
-        // Claps on beats 2 and 4
-        [4, 12].forEach(pos => {
-          if (Math.random() > 0.3) randomSteps[pos] = 1;
-        });
-      } else if (patternKey === 'bass') {
-        // Bass follows kick-like pattern
-        [0, 4, 8, 12].forEach(pos => {
-          if (Math.random() > 0.3) randomSteps[pos] = 1;
-        });
-      } else {
-        // Default random pattern (for melody, etc.)
-        for (let i = 0; i < 16; i++) {
-          if (Math.random() > 0.6) randomSteps[i] = 1;
-        }
-      }
-      
-      newPattern[patternKey] = randomSteps;
-      setCurrentPattern(newPattern);
-    }
+
+    setCurrentPattern(prev => {
+      const updated: BeatPattern = { ...prev };
+      updated[instrumentKey] = getRandomInstrumentPattern(
+        selectedGenre,
+        instrumentKey,
+        prev[instrumentKey]
+      );
+      return updated;
+    });
     
     // If playing, restart with new pattern
     if (isPlaying) {
@@ -434,7 +375,7 @@ export default function Create() {
     const baseSamples = SAMPLE_CONFIGS[selectedGenre] || SAMPLE_CONFIGS['hip-hop'];
     
     // Randomize all patterns (only for instruments with available samples)
-    const randomPattern = RandomBeatGenerator.generateRandomPatternForGenre(baseSamples);
+    const randomPattern = RandomBeatGenerator.generateRandomPatternForGenre(selectedGenre, baseSamples);
     setCurrentPattern(randomPattern);
     
     // Restart if it was playing
