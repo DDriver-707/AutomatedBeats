@@ -1,4 +1,4 @@
-import lamejs from 'lamejs';
+import * as lamejs from '@breezystack/lamejs';
 import type { GenreConfig } from '../types/BeatTypes';
 
 export class ExportEngine {
@@ -53,7 +53,7 @@ export class ExportEngine {
 
     } catch (error) {
       console.error('Export failed:', error);
-      throw new Error('Failed to export beat to MP3');
+      throw error;
     }
   }
 
@@ -86,35 +86,31 @@ export class ExportEngine {
     // Schedule all the beats
     for (let step = 0; step < totalSteps; step++) {
       const stepTime = step * stepDuration;
-      const stepIndex = step % 16; // Loop the 16-step pattern
+      const stepIndex = step % 16;
 
-      // Play kick
-      if (pattern.kick[stepIndex] && sampleBuffers.kick) {
+      const kickSteps   = pattern.kick   || [];
+      const snareSteps  = pattern.snare  || [];
+      const hihatSteps  = pattern.hihat  || [];
+      const openHatSteps= pattern.openHat|| [];
+      const bassSteps   = pattern.bass   || [];
+      const melodySteps = pattern.melody || [];
+
+      if (kickSteps[stepIndex] && sampleBuffers.kick) {
         this.scheduleSample(sampleBuffers.kick, stepTime, outputNode, 0.8);
-      }
-
-      // Play snare
-      if (pattern.snare[stepIndex] && sampleBuffers.snare) {
+        }
+      if (snareSteps[stepIndex] && sampleBuffers.snare) {
         this.scheduleSample(sampleBuffers.snare, stepTime, outputNode, 0.7);
       }
-
-      // Play hi-hat
-      if (pattern.hihat[stepIndex] && sampleBuffers.hihat) {
+      if (hihatSteps[stepIndex] && sampleBuffers.hihat) {
         this.scheduleSample(sampleBuffers.hihat, stepTime, outputNode, 0.4);
       }
-
-      // Play open hat
-      if (pattern.openHat[stepIndex] && sampleBuffers.openHat) {
+      if (openHatSteps[stepIndex] && sampleBuffers.openHat) {
         this.scheduleSample(sampleBuffers.openHat, stepTime, outputNode, 0.5);
       }
-
-      // Play bass
-      if (pattern.bass[stepIndex] && sampleBuffers.bass) {
+      if (bassSteps[stepIndex] && sampleBuffers.bass) {
         this.scheduleSample(sampleBuffers.bass, stepTime, outputNode, 0.6);
       }
-
-      // Play melody
-      if (pattern.melody[stepIndex] && sampleBuffers.melody) {
+      if (melodySteps[stepIndex] && sampleBuffers.melody) {
         this.scheduleSample(sampleBuffers.melody, stepTime, outputNode, 0.5);
       }
     }
@@ -150,53 +146,60 @@ export class ExportEngine {
     }
   }
 
-  private async convertToMP3(audioBuffer: AudioBuffer): Promise<Blob> {
-    const sampleRate = audioBuffer.sampleRate;
-    const channels = audioBuffer.numberOfChannels;
+ private async convertToMP3(audioBuffer: AudioBuffer): Promise<Blob> {
+  const sampleRate = audioBuffer.sampleRate;
+  const channels = Math.min(2, audioBuffer.numberOfChannels || 1);
 
-    // Get the audio data
-    const leftChannel = audioBuffer.getChannelData(0);
-    const rightChannel = channels > 1 ? audioBuffer.getChannelData(1) : leftChannel;
+  // Get float32 channel data
+  const leftChannel = audioBuffer.getChannelData(0);
+  const rightChannel =
+    channels > 1 ? audioBuffer.getChannelData(1) : leftChannel;
 
-    // Convert to 16-bit PCM
-    const leftPCM = this.convertTo16BitPCM(leftChannel);
-    const rightPCM = this.convertTo16BitPCM(rightChannel);
+  // Convert to 16-bit PCM
+  const leftPCM = this.convertTo16BitPCM(leftChannel);
+  const rightPCM = this.convertTo16BitPCM(rightChannel);
 
-    // Interleave stereo channels
-    const stereoPCM = this.interleaveStereo(leftPCM, rightPCM);
+  // Create MP3 encoder (stereo if we have 2 channels, otherwise mono)
+  const mp3encoder = new lamejs.Mp3Encoder(channels, sampleRate, 128); // 128 kbps
+  const mp3Data: Uint8Array[] = [];
 
-    // Create MP3 encoder
-    const mp3encoder = new (lamejs as any).Mp3Encoder(channels, sampleRate, 128); // 128 kbps
-    const mp3Data: Int8Array[] = [];
+  const chunkSize = 1152; // MP3 frame size
 
-    // Encode in chunks
-    const chunkSize = 1152; // MP3 frame size
-    for (let i = 0; i < stereoPCM.length; i += chunkSize) {
-      const chunk = stereoPCM.subarray(i, i + chunkSize);
-      const mp3buf = mp3encoder.encodeBuffer(chunk);
-      if (mp3buf.length > 0) {
-        mp3Data.push(mp3buf);
-      }
-    }
+  for (let i = 0; i < leftPCM.length; i += chunkSize) {
+    const leftChunk = leftPCM.subarray(i, i + chunkSize);
+    const rightChunk =
+      channels > 1 ? rightPCM.subarray(i, i + chunkSize) : leftChunk;
 
-    // Flush remaining data
-    const mp3buf = mp3encoder.flush();
-    if (mp3buf.length > 0) {
+    // encodeBuffer can return undefined for very small/empty chunks, so guard it
+    const mp3buf =
+      channels > 1
+        ? mp3encoder.encodeBuffer(leftChunk, rightChunk)
+        : mp3encoder.encodeBuffer(leftChunk);
+
+    if (mp3buf && mp3buf.length > 0) {
       mp3Data.push(mp3buf);
     }
-
-    // Combine all MP3 data
-    const totalLength = mp3Data.reduce((acc, chunk) => acc + chunk.length, 0);
-    const result = new Int8Array(totalLength);
-    let offset = 0;
-    
-    for (const chunk of mp3Data) {
-      result.set(chunk, offset);
-      offset += chunk.length;
-    }
-
-    return new Blob([result], { type: 'audio/mp3' });
   }
+
+  // Flush any remaining data
+  const mp3buf = mp3encoder.flush();
+  if (mp3buf && mp3buf.length > 0) {
+    mp3Data.push(mp3buf);
+  }
+
+  // Concatenate all chunks into a single Uint8Array
+  const totalLength = mp3Data.reduce((acc, chunk) => acc + chunk.length, 0);
+  const result = new Uint8Array(totalLength);
+  let offset = 0;
+
+  for (const chunk of mp3Data) {
+    result.set(chunk, offset);
+    offset += chunk.length;
+  }
+
+  return new Blob([result], { type: "audio/mp3" });
+}
+
 
   private convertTo16BitPCM(float32Array: Float32Array): Int16Array {
     const buffer = new ArrayBuffer(float32Array.length * 2);
