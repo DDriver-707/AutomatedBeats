@@ -408,7 +408,8 @@ export default function Create() {
         config,
         currentPattern,
         customSamples,
-        60 // 60 seconds
+        60, // 60 seconds
+        trackVolumes // Pass track volumes so export matches live playback
       );
       
       // Download the MP3

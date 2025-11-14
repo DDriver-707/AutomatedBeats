@@ -1,8 +1,13 @@
 declare module 'lamejs' {
-  export interface Mp3Encoder {
+  export class Mp3Encoder {
+    constructor(channels: number, sampleRate: number, bitRate: number);
     encodeBuffer(left: Int16Array, right?: Int16Array): Int8Array;
     flush(): Int8Array;
   }
-  
-  export function Mp3Encoder(channels: number, sampleRate: number, bitRate: number): Mp3Encoder;
+
+  const lamejs: {
+    Mp3Encoder: typeof Mp3Encoder;
+  };
+
+  export default lamejs;
 }
